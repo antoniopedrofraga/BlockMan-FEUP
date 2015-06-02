@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 
 
+
 import org.andengine.engine.camera.BoundCamera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.physics.PhysicsHandler;
@@ -60,6 +61,7 @@ import org.andengine.util.color.Color;
 import org.andengine.util.debug.Debug;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -89,6 +91,8 @@ public class Game extends SimpleBaseGameActivity {
 
     final float PLAYER_START_X = 1500;
     final float PLAYER_START_Y = 7 * CAMERA_HEIGHT / 12 - 60;
+    
+    final boolean PHYSICS_VISIBILITY = true;
 
     private String state = "not jumping";
     //---------------------------
@@ -103,6 +107,8 @@ public class Game extends SimpleBaseGameActivity {
     private PhysicsWorld physicsWorld;
     
     private PhysicsHandler playerPhysics;
+    
+    private Body player_body;
     
     //--------------------------
     //Add Scene-----------------
@@ -193,17 +199,15 @@ public class Game extends SimpleBaseGameActivity {
         back = new Sprite(0, CAMERA_HEIGHT - this.myLayerFront.getHeight(), this.myLayerFront, vertexBufferObjectManager);
         scene.attachChild(back);
 
-        //---------------------
-        //add physics
-        initPhysics();
-        //------------------
-
-
-
         player = new AnimatedSprite(PLAYER_START_X, PLAYER_START_Y, this.mPlayerTextureRegion, vertexBufferObjectManager);
         player.setScaleCenterY(this.mPlayerTextureRegion.getHeight());
         player.setScale(2);
         player_stop();
+        
+        //---------------------
+        //add physics
+        initPhysics();
+        //------------------
 
         scene.attachChild(player);
         generateMap();
@@ -224,6 +228,7 @@ public class Game extends SimpleBaseGameActivity {
                         if(direction != RIGHT) {
                             if(direction != RIGHT_W_COLLISION) {
                                 player_walk_right();
+                                player_body.setLinearVelocity(new Vector2(6, player_body.getLinearVelocity().y));
                                 direction = RIGHT;
                             }
                         }
@@ -231,6 +236,7 @@ public class Game extends SimpleBaseGameActivity {
                         if(direction != LEFT) {
                             if(direction != LEFT_W_COLLISION) {
                                 player_walk_left();
+                                player_body.setLinearVelocity(new Vector2(-6, player_body.getLinearVelocity().y));
                                 direction = LEFT;
                             }
                         }
@@ -243,6 +249,7 @@ public class Game extends SimpleBaseGameActivity {
                         if(direction != RIGHT) {
                             if(direction != RIGHT_W_COLLISION) {
                             player_walk_right();
+                            player_body.setLinearVelocity(new Vector2(6, player_body.getLinearVelocity().y));
                             direction = RIGHT;
                             }
                         }
@@ -250,6 +257,7 @@ public class Game extends SimpleBaseGameActivity {
                         if(direction != LEFT) {
                             if(direction != LEFT_W_COLLISION) {
                                 player_walk_left();
+                                player_body.setLinearVelocity(new Vector2(-6, player_body.getLinearVelocity().y));
                                 direction = LEFT;
                             }
                         }
@@ -259,15 +267,19 @@ public class Game extends SimpleBaseGameActivity {
 
                 if (pSceneTouchEvent.isActionUp()) {
                     //JUMP-------------------------
-                    if(System.currentTimeMillis() - tap_time < 100){
-                      Log.d(TAG, "jumping");
-                    }
+                	if(System.currentTimeMillis() - tap_time < 100){
+                		Log.d(TAG, "jumping");
+                		Log.d(TAG, "current vy =" + player_body.getLinearVelocity().y);
+                		player_body.applyLinearImpulse(new Vector2(0,20), player_body.getLocalCenter());
+                	}
                     //------------------------------
                     if(direction == "right"){
                             player_stop_right();
+                            player_body.setLinearVelocity(new Vector2(0, player_body.getLinearVelocity().y));
                             direction = STOP_RIGHT;
                     }else if(direction == "left"){
                             player_stop_left();
+                            player_body.setLinearVelocity(new Vector2(0, player_body.getLinearVelocity().y));
                             direction = STOP_LEFT;
                     }else{
                             direction = STOP;
@@ -312,9 +324,18 @@ public class Game extends SimpleBaseGameActivity {
         for(int i = 0; i < map.getHeight(); i++){
             for(int a = 0; a < map.getWidth(); a++){
                 if(map.getMap()[a][i].getKind() == "rock"){
+                	//sprites stuff
                     map.getMap()[a][i].setSprite(new Sprite(MAP_START_X + SPACING * a, MAP_START_Y - SPACING * i,rock_layer, vertexBufferObjectManager));
                     map.pushPos(new Position(a,i));
                     scene.attachChild(map.getMap()[a][i].getSprite());
+                    
+                    //physics stuff
+                    IShape box = new Rectangle(MAP_START_X + SPACING * a, MAP_START_Y - SPACING * i, 100, 100, getVertexBufferObjectManager());
+                    box.setVisible(PHYSICS_VISIBILITY);
+                    FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(0, 0, 1f);
+                    PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) box, BodyType.StaticBody, wallFixtureDef);
+                    scene.attachChild(box);
+                    
                 }
             }
         }
@@ -349,19 +370,21 @@ public class Game extends SimpleBaseGameActivity {
     
     private void initPhysics()
     {
-        physicsWorld = new PhysicsWorld(new Vector2(0, -9.81f), false);
+        physicsWorld = new PhysicsWorld(new Vector2(0, 40f), false);
         playerPhysics = new PhysicsHandler(player);
         
         final IShape bottom = new Rectangle(0, PLAYER_START_Y + 60, 3000, 20, getVertexBufferObjectManager());
-        bottom.setVisible(true);
+        bottom.setVisible(PHYSICS_VISIBILITY);
         
-        final FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(0, 0, 1f);
+        final FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(2, 0, 0f);
         PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) bottom, BodyType.StaticBody, wallFixtureDef);
         scene.attachChild(bottom);
         
-        PolygonShape polygonShape = new PolygonShape();
-        polygonShape.setAsBox(1, 1);
+        //Add player
+        final FixtureDef playerFixtureDef = PhysicsFactory.createFixtureDef(2, 0, 0f);
+        player_body = PhysicsFactory.createBoxBody(physicsWorld, player, BodyType.DynamicBody,  playerFixtureDef);
         
+        physicsWorld.registerPhysicsConnector(new PhysicsConnector(player, player_body, true, false));        
         
         scene.registerUpdateHandler(physicsWorld);
         
