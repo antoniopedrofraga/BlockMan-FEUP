@@ -46,7 +46,15 @@ public class Map {
            }
        }
 
-       map[6][0] = new Box("rock", 6, 0, null);
+       map[7][0] = new Box("rock", 6, 0, null);
+       map[3][0] = new Box("rock", 6, 0, null);
+       map[3][1] = new Box("rock", 6, 0, null);
+       map[11][1] = new Box("rock", 6, 0, null);
+       map[11][0] = new Box("rock", 6, 0, null);
+       
+       map[13][0] = new Box("box", 6, 0, null);
+       map[9][0] = new Box("box", 6, 0, null);
+       
        for(int i = 0; i < height; i++){
             map[0][i] = new Box("rock",0,i, null);
             map[width - 1][i] = new Box("rock", width - 1, i, null);
