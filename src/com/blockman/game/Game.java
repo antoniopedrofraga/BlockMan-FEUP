@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 
 
+
 import org.andengine.engine.camera.BoundCamera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.physics.PhysicsHandler;
@@ -44,6 +45,7 @@ import org.andengine.entity.sprite.ButtonSprite;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.util.FPSLogger;
+import org.andengine.extension.debugdraw.DebugRenderer;
 import org.andengine.extension.physics.box2d.PhysicsConnector;
 import org.andengine.extension.physics.box2d.PhysicsFactory;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
@@ -92,7 +94,7 @@ public class Game extends SimpleBaseGameActivity {
     final float PLAYER_START_X = 1500;
     final float PLAYER_START_Y = 7 * CAMERA_HEIGHT / 12 - 60;
     
-    final boolean PHYSICS_VISIBILITY = true;
+    final boolean PHYSICS_VISIBILITY = false;
 
     private String state = "not jumping";
     //---------------------------
@@ -269,8 +271,13 @@ public class Game extends SimpleBaseGameActivity {
                     //JUMP-------------------------
                 	if(System.currentTimeMillis() - tap_time < 100){
                 		Log.d(TAG, "jumping");
-                		Log.d(TAG, "current vy =" + player_body.getLinearVelocity().y);
-                		player_body.applyLinearImpulse(new Vector2(0,20), player_body.getLocalCenter());
+                		Log.d(TAG, "current x center =" + player_body.getWorldCenter().x);
+                		Log.d(TAG, "current y center =" + player_body.getWorldCenter().y);
+                		
+                		Log.d(TAG, "current x center =" + player_body.getLocalCenter().x );
+                		Log.d(TAG, "current y center =" + player_body.getLocalCenter().y);
+                		
+                		player_body.setLinearVelocity(new Vector2(player_body.getLinearVelocity().x, -20f)); 
                 	}
                     //------------------------------
                     if(direction == "right"){
@@ -382,11 +389,18 @@ public class Game extends SimpleBaseGameActivity {
         
         //Add player
         final FixtureDef playerFixtureDef = PhysicsFactory.createFixtureDef(2, 0, 0f);
-        player_body = PhysicsFactory.createBoxBody(physicsWorld, player, BodyType.DynamicBody,  playerFixtureDef);
+        final IShape player_shape = new Rectangle(PLAYER_START_X, PLAYER_START_Y, 30, 60, getVertexBufferObjectManager());
+        
+        player_body = PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) player_shape, BodyType.DynamicBody,  playerFixtureDef);
+        
+        player_body.setFixedRotation(true); // prevent rotation
         
         physicsWorld.registerPhysicsConnector(new PhysicsConnector(player, player_body, true, false));        
         
         scene.registerUpdateHandler(physicsWorld);
+        
+        DebugRenderer debug = new DebugRenderer(physicsWorld, getVertexBufferObjectManager());
+        scene.attachChild(debug);
         
     }
    
