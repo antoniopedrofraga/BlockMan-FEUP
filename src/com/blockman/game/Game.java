@@ -26,12 +26,16 @@ import android.widget.Toast;
 
 
 
+
+
+
 import org.andengine.engine.camera.BoundCamera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.physics.PhysicsHandler;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
+import org.andengine.entity.Entity;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.EntityModifier;
 import org.andengine.entity.modifier.FadeInModifier;
@@ -137,6 +141,11 @@ public class Game extends SimpleBaseGameActivity {
     private BitmapTextureAtlas go_back_bmp;
     private ITextureRegion go_back_texture;
     private ButtonSprite go_back;
+    
+    private BitmapTextureAtlas box_btn_bmp;
+    private ITextureRegion box_btn_texture;
+    private ButtonSprite box_btn;
+    private boolean canPickUp = false;
     //--------------------------
     String direction = "";
     //--------------------------
@@ -183,14 +192,22 @@ public class Game extends SimpleBaseGameActivity {
         this.myLayerFront = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.myBackgroundTexture, this, "ingame_back.jpg", 0, 0);
         this.myLayerMid = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.myBackgroundTexture, this, "clouds.png", 0, 188);
         this.myBackgroundTexture.load();
-
+        Log.d("BlockMan", "Starting to load player");
+        long current_time = System.currentTimeMillis();
+        
         this.mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 2048, 4000, TextureOptions.BILINEAR);
         this.mPlayerTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "mustache_man_3.png", 0, 0, 16, 31);
         this.mBitmapTextureAtlas.load();
-
+        
+        Log.d("BlockMan", "Player loaded, it tooked " +  (System.currentTimeMillis() - current_time) + " ms");
+        
         this.go_back_bmp = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
         this.go_back_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.go_back_bmp, this, "go_back.png", 0, 0);
         this.go_back_bmp.load();
+        
+        this.box_btn_bmp = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
+        this.box_btn_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.box_btn_bmp, this, "box_btn.png", 0, 0);
+        this.box_btn_bmp.load();
         
         this.box_bmp = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
         this.box_layer = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.box_bmp, this, "img/box.png", 0, 0);
@@ -208,7 +225,7 @@ public class Game extends SimpleBaseGameActivity {
 
 
 
-        this.title = new Text(PLAYER_START_X, CAMERA_HEIGHT / 2 - 300, title_font, "LEVEL 1",getVertexBufferObjectManager());
+        this.title = new Text(PLAYER_START_X - 150, CAMERA_HEIGHT / 2 - 300, title_font, "LEVEL 1",getVertexBufferObjectManager());
     }
 
     @Override
@@ -334,6 +351,23 @@ public class Game extends SimpleBaseGameActivity {
         hud.attachChild(go_back);
         hud.registerTouchArea(go_back);
         go_back.setScale((float)0.8);
+        
+        box_btn =  new ButtonSprite(1050, 600 , box_btn_texture,  vertexBufferObjectManager){
+            @Override
+            public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+                                         float pTouchAreaLocalX, float pTouchAreaLocalY) {
+                if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+                	if(box_btn.getAlpha() == 1){
+                		box_btn.registerEntityModifier(click);
+                	}
+                }
+                return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+            }};
+        hud.attachChild(box_btn);
+        box_btn.setScale((float)0.8);
+        box_btn.setAlpha((float) 0.3);
+        hud.registerTouchArea(box_btn);
+        
         myChaseCamera.setHUD(hud);
 
         //Generate map
@@ -372,7 +406,9 @@ public class Game extends SimpleBaseGameActivity {
                     IShape box = new Rectangle(MAP_START_X + SPACING * a, MAP_START_Y - SPACING * i, 100, 100, getVertexBufferObjectManager());
                     box.setVisible(PHYSICS_VISIBILITY);
                     FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(0, 0, 1f);
-                    PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) box, BodyType.StaticBody, wallFixtureDef);
+                    Body b = PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) box, BodyType.StaticBody, wallFixtureDef);
+                    Log.d(TAG, "Body fixture size: " + b.getFixtureList().size());
+                    b.getFixtureList().get(0).setUserData("box body");
                     scene.attachChild(box);
                 }
             }
@@ -385,10 +421,10 @@ public class Game extends SimpleBaseGameActivity {
     }
 
     private void player_stop_left() {
-    	player.animate(new long[]{40, 40, 40, 40, 40,
-				40, 40, 40, 40, 40,
-				40, 40, 40, 40, 40,
-				40}, new int[] {272, 271, 270, 269, 268
+    	player.animate(new long[]{50, 50, 50, 50, 50,
+				50, 50, 50, 50, 50,
+				50, 50, 50, 50, 50,
+				50}, new int[] {272, 271, 270, 269, 268
     			, 267, 266, 265, 264, 263
     			,262, 261, 260, 259, 258
     			, 257}, 999);
@@ -414,10 +450,10 @@ public class Game extends SimpleBaseGameActivity {
     }
 
     private void player_stop_right() {
-    	player.animate(new long[]{40, 40, 40, 40, 40,
-				40, 40, 40, 40, 40,
-				40, 40, 40, 40, 40,
-				40}, 1, 16, true);
+    	player.animate(new long[]{50, 50, 50, 50, 50,
+				50, 50, 50, 50, 50,
+				50, 50, 50, 50, 50,
+				50}, 1, 16, true);
     }
 
     private String getCollision(){
@@ -440,7 +476,7 @@ public class Game extends SimpleBaseGameActivity {
         
         //Add player-----------
         final FixtureDef playerFixtureDef = PhysicsFactory.createFixtureDef(2, 0, 0f);
-        final IShape player_shape = new Rectangle(PLAYER_START_X, PLAYER_START_Y, 30, 60, getVertexBufferObjectManager());
+        final IShape player_shape = new Rectangle(PLAYER_START_X, PLAYER_START_Y, 40, 60, getVertexBufferObjectManager());
         
         player_body = PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) player_shape, BodyType.DynamicBody,  playerFixtureDef);
         player_body.setFixedRotation(true); // prevent rotation
@@ -452,6 +488,12 @@ public class Game extends SimpleBaseGameActivity {
         PolygonShape sensor = new PolygonShape();
         sensor.setAsBox((float)0.3, (float)1.2,new Vector2(0, 0), 0);
         player_body.createFixture(sensor, 0).setSensor(true);
+        
+        PolygonShape sensor_box = new PolygonShape();
+        sensor_box.setAsBox((float)2, (float)0.3,new Vector2(0, 0), 0);
+        player_body.createFixture(sensor_box, 0).setSensor(true);
+        
+        player_body.getFixtureList().get(2).setUserData("box sensor");
         player_body.getFixtureList().get(1).setUserData("feet");
         player_body.getFixtureList().get(0).setUserData("body");
         
@@ -471,9 +513,20 @@ public class Game extends SimpleBaseGameActivity {
             {
                 final Fixture x1 = contact.getFixtureA();
                 final Fixture x2 = contact.getFixtureB();
+                Log.d(TAG, "Contact A: " + contact.getFixtureA().getUserData() + ", Contact B: " + contact.getFixtureB().getUserData());
                 if(contact.getFixtureB().getUserData() == "feet" || contact.getFixtureA().getUserData() == "feet"){
                 	footContact = true;
                 }
+                
+                if(contact.getFixtureA().getUserData() == "box sensor" && contact.getFixtureB().getUserData() == "box body"){
+                	box_btn.setAlpha((float)1);
+                	canPickUp = true;
+                }else if(contact.getFixtureB().getUserData() == "box sensor" && contact.getFixtureA().getUserData() == "box body"){
+                	box_btn.setAlpha((float)1);
+                	canPickUp = true;
+                }
+                
+                
             }
 
             @Override
@@ -481,6 +534,14 @@ public class Game extends SimpleBaseGameActivity {
             {
             	if(contact.getFixtureB().getUserData() == "feet" || contact.getFixtureA().getUserData() == "feet"){
                 	footContact = false;
+                }
+            	
+            	if(contact.getFixtureA().getUserData() == "box sensor" && contact.getFixtureB().getUserData() == "box body"){
+                	box_btn.setAlpha((float)0.3);
+                	canPickUp = false;
+                }else if(contact.getFixtureB().getUserData() == "box sensor" && contact.getFixtureA().getUserData() == "box body"){
+                	box_btn.setAlpha((float)0.3);
+                	canPickUp = false;
                 }
             }
 
@@ -519,13 +580,17 @@ public class Game extends SimpleBaseGameActivity {
         @Override
         protected void onModifierFinished(IEntity pItem)
         {
-            super.onModifierFinished(pItem);
-            Intent back = new Intent(getBaseContext(), MainMenu.class);
-            back.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-            startActivity(back);
-            direction = "finish";
-            scene.clearChildScene();
-            finish();
+        	if(pItem == go_back){
+        		super.onModifierFinished(pItem);
+        		Intent back = new Intent(getBaseContext(), MainMenu.class);
+        		back.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        		startActivity(back);
+        		direction = "finish";
+        		scene.clearChildScene();
+        		finish();
+        	}else if(pItem == box_btn){
+        		Log.d(TAG, "Picked up box");
+        	}
         }
     });
 
