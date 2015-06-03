@@ -184,8 +184,8 @@ public class Game extends SimpleBaseGameActivity {
         this.myLayerMid = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.myBackgroundTexture, this, "clouds.png", 0, 188);
         this.myBackgroundTexture.load();
 
-        this.mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 192, 256, TextureOptions.BILINEAR);
-        this.mPlayerTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "man.png", 0, 0, 6, 4);
+        this.mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 2048, 4000, TextureOptions.BILINEAR);
+        this.mPlayerTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "mustache_man_3.png", 0, 0, 16, 31);
         this.mBitmapTextureAtlas.load();
 
         this.go_back_bmp = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
@@ -225,9 +225,9 @@ public class Game extends SimpleBaseGameActivity {
         back = new Sprite(0, CAMERA_HEIGHT - this.myLayerFront.getHeight(), this.myLayerFront, vertexBufferObjectManager);
         scene.attachChild(back);
 
-        player = new AnimatedSprite(PLAYER_START_X, PLAYER_START_Y, this.mPlayerTextureRegion, vertexBufferObjectManager);
-        player.setScaleCenterY(this.mPlayerTextureRegion.getHeight());
-        player.setScale(2);
+        player = new AnimatedSprite(PLAYER_START_X, PLAYER_START_Y , this.mPlayerTextureRegion, vertexBufferObjectManager);
+        player.setScaleCenterY(this.mPlayerTextureRegion.getHeight() - 80);
+        player.setScale((float)0.7);
         player_stop();
         
         //---------------------
@@ -381,23 +381,43 @@ public class Game extends SimpleBaseGameActivity {
 
 
     private void player_stop() {
-        player.animate(new long[]{100, 100}, 0, 1, true);
+        player_stop_left();
     }
 
     private void player_stop_left() {
-        player.animate(new long[]{100, 100}, 12, 13, true);
+    	player.animate(new long[]{40, 40, 40, 40, 40,
+				40, 40, 40, 40, 40,
+				40, 40, 40, 40, 40,
+				40}, new int[] {272, 271, 270, 269, 268
+    			, 267, 266, 265, 264, 263
+    			,262, 261, 260, 259, 258
+    			, 257}, 999);
+        //player.animate(new long[]{100, 100}, 12, 13, true);
     }
 
     private void player_walk_left() {
-        player.animate(new long[]{200, 200, 200, 200}, 14, 17, true);
+    	player.animate(new long[]{40, 40, 40, 40, 40,
+				40, 40, 40, 40, 40,
+				40, 40, 40, 40, 40
+				}, new int[] {303, 302, 301, 300
+    			, 299, 298, 297, 296, 295
+    			,294, 293, 292, 291, 290
+    			, 289}, 999);
+        //player.animate(new long[]{200, 200, 200, 200}, 14, 17, true);
     }
 
     private void player_walk_right() {
-        player.animate(new long[]{200, 200, 200, 200}, 20, 23, true);
+    	player.animate(new long[]{40, 40, 40, 40, 40,
+				40, 40, 40, 40, 40,
+				40, 40, 40, 40, 40,
+				40}, /*1*/32, /*16*/47, true);
     }
 
     private void player_stop_right() {
-        player.animate(new long[]{100, 100}, 18, 19, true);
+    	player.animate(new long[]{40, 40, 40, 40, 40,
+				40, 40, 40, 40, 40,
+				40, 40, 40, 40, 40,
+				40}, 1, 16, true);
     }
 
     private String getCollision(){

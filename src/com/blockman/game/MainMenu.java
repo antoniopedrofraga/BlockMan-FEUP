@@ -92,8 +92,6 @@ public class MainMenu extends SimpleBaseGameActivity {
         autoParallaxBackground.attachParallaxEntity(new ParallaxBackground.ParallaxEntity(-5.0f, new Sprite(0, 0, this.myLayerMid, vertexBufferObjectManager)));
         scene.setBackground(autoParallaxBackground);
 
-        final float playerX = CAMERA_WIDTH / 2;
-        final float playerY = 7 * CAMERA_HEIGHT / 9;
 
         //Adicionar texto
 
@@ -105,12 +103,17 @@ public class MainMenu extends SimpleBaseGameActivity {
         scene.attachChild(txt);
 
         scene.attachChild(title);
-
+        
         //Adicionar player
-        final AnimatedSprite player = new AnimatedSprite(playerX, playerY - 8, this.mPlayerTextureRegion, vertexBufferObjectManager);
+        final float playerX = CAMERA_WIDTH / 2 - 30;
+        final float playerY = 7 * CAMERA_HEIGHT / 9 - 68;
+        final AnimatedSprite player = new AnimatedSprite(playerX, playerY , this.mPlayerTextureRegion, vertexBufferObjectManager);
         player.setScaleCenterY(this.mPlayerTextureRegion.getHeight());
-        player.setScale(2);
-        player.animate(new long[]{200, 200, 200, 200}, 20, 23, true);
+        player.animate(new long[]{40, 40, 40, 40, 40,
+        							40, 40, 40, 40, 40,
+        							40, 40, 40, 40, 40,
+        							40}, /*1*/32, /*16*/47, true);
+        player.setScale((float)0.7);
 
         scene.attachChild(player);
 
@@ -196,8 +199,8 @@ public class MainMenu extends SimpleBaseGameActivity {
         this.myLayerMid = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.myBackgroundTexture, this, "clouds.png", 0, 188);
         this.myBackgroundTexture.load();
 
-        this.mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 192, 256, TextureOptions.BILINEAR);
-        this.mPlayerTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "man.png", 0, 0, 6, 4);
+        this.mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 2048, 4000, TextureOptions.BILINEAR);
+        this.mPlayerTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "mustache_man_2.png", 0, 0, 16, 31);
         this.mBitmapTextureAtlas.load();
 
         this.level1 = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
