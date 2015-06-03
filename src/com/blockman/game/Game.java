@@ -21,6 +21,11 @@ import android.widget.Toast;
 
 
 
+
+
+
+
+
 import org.andengine.engine.camera.BoundCamera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.physics.PhysicsHandler;
@@ -66,8 +71,14 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.ContactImpulse;
+import com.badlogic.gdx.physics.box2d.ContactListener;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.Shape;
 import com.blockman.data.Map;
 import com.blockman.data.Position;
 
@@ -113,6 +124,10 @@ public class Game extends SimpleBaseGameActivity {
     private PhysicsHandler playerPhysics;
     
     private Body player_body;
+    
+    private Body sensor_body;
+    
+    private boolean footContact = false; //how many footcontact there is
     
     //--------------------------
     //Add Scene-----------------
@@ -278,11 +293,9 @@ public class Game extends SimpleBaseGameActivity {
 
                 if (pSceneTouchEvent.isActionUp()) {
                     //JUMP-------------------------
-                	if(System.currentTimeMillis() - tap_time < 150){
-                		Log.d(TAG, "jumping");
-                		Log.d(TAG, "VY = " + player_body.getLinearVelocity().y);
-                		if(Math.abs(player_body.getLinearVelocity().y) == WALKING_VY || player_body.getLinearVelocity().y == 0)
-                			player_body.setLinearVelocity(new Vector2(player_body.getLinearVelocity().x, -28f));
+                	if(System.currentTimeMillis() - tap_time < 100){
+                		if(footContact == true)
+                			player_body.setLinearVelocity(new Vector2(player_body.getLinearVelocity().x, -26f));
                 	}
                     //------------------------------
                     if(direction == RIGHT){
@@ -295,7 +308,6 @@ public class Game extends SimpleBaseGameActivity {
                             direction = STOP_LEFT;
                     }else{
                             direction = STOP;
-                           
                      }
                     return true;
                 }
@@ -325,6 +337,7 @@ public class Game extends SimpleBaseGameActivity {
         myChaseCamera.setHUD(hud);
 
         //Generate map
+        physicsWorld.setContactListener(createContactListener());
 
 
         return scene;
@@ -346,7 +359,9 @@ public class Game extends SimpleBaseGameActivity {
                     box.setVisible(PHYSICS_VISIBILITY);
                     FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(0, 0, 1f);
                     PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) box, BodyType.StaticBody, wallFixtureDef);
+                    
                     scene.attachChild(box);
+                    
                     
                 }else if(map.getMap()[a][i].getKind() == "box"){
                 	//sprites stuff
@@ -400,10 +415,10 @@ public class Game extends SimpleBaseGameActivity {
         bottom.setVisible(PHYSICS_VISIBILITY);
         
         final FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(2, 0, 0f);
-        PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) bottom, BodyType.StaticBody, wallFixtureDef);
+        PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) bottom, BodyType.StaticBody, wallFixtureDef).setUserData("ground");
         scene.attachChild(bottom);
         
-        //Add player
+        //Add player-----------
         final FixtureDef playerFixtureDef = PhysicsFactory.createFixtureDef(2, 0, 0f);
         final IShape player_shape = new Rectangle(PLAYER_START_X, PLAYER_START_Y, 30, 60, getVertexBufferObjectManager());
         
@@ -411,12 +426,57 @@ public class Game extends SimpleBaseGameActivity {
         player_body.setFixedRotation(true); // prevent rotation
         
         physicsWorld.registerPhysicsConnector(new PhysicsConnector(player, player_body, true, false));        
+        //----------------------
+        //Add onFloor sensor-----
+        
+        PolygonShape sensor = new PolygonShape();
+        sensor.setAsBox((float)0.3, (float)1.2,new Vector2(0, 0), 0);
+        player_body.createFixture(sensor, 0).setSensor(true);
+        player_body.getFixtureList().get(1).setUserData("feet");
+        player_body.getFixtureList().get(0).setUserData("body");
         
         scene.registerUpdateHandler(physicsWorld);
         
         DebugRenderer debug = new DebugRenderer(physicsWorld, getVertexBufferObjectManager());
         scene.attachChild(debug);
         
+    }
+    
+    private ContactListener createContactListener()
+    {
+        ContactListener contactListener = new ContactListener()
+        {
+            @Override
+            public void beginContact(Contact contact)
+            {
+                final Fixture x1 = contact.getFixtureA();
+                final Fixture x2 = contact.getFixtureB();
+                if(contact.getFixtureB().getUserData() == "feet" || contact.getFixtureA().getUserData() == "feet"){
+                	footContact = true;
+                }
+            }
+
+            @Override
+            public void endContact(Contact contact)
+            {
+            	if(contact.getFixtureB().getUserData() == "feet" || contact.getFixtureA().getUserData() == "feet"){
+                	footContact = false;
+                }
+            }
+
+            @Override
+            public void preSolve(Contact contact, Manifold oldManifold)
+            {
+                   
+            }
+
+            @Override
+            public void postSolve(Contact contact, ContactImpulse impulse)
+            {
+                   
+            }
+        };
+        return contactListener;
     }
    
 

@@ -163,7 +163,8 @@ public class MainMenu extends SimpleBaseGameActivity {
                 return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
         }};
 
-
+        quit.setScale((float)1.4);
+        lv1.setScale((float)1.4);
          scene.setOnSceneTouchListener(new IOnSceneTouchListener() {
             @Override
             public boolean onSceneTouchEvent(Scene pScene, final TouchEvent pSceneTouchEvent) {
