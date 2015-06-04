@@ -304,7 +304,7 @@ public class Game extends SimpleBaseGameActivity {
 									if(!carringBox)
 										player_body.setLinearVelocity(new Vector2(6, player_body.getLinearVelocity().y));
 									else
-										player_body.setLinearVelocity(new Vector2(4, player_body.getLinearVelocity().y));
+										player_body.setLinearVelocity(new Vector2(3, player_body.getLinearVelocity().y));
 									direction = RIGHT;
 								}
 							}
@@ -315,7 +315,7 @@ public class Game extends SimpleBaseGameActivity {
 									if(!carringBox)
 										player_body.setLinearVelocity(new Vector2(-6, player_body.getLinearVelocity().y));
 									else
-										player_body.setLinearVelocity(new Vector2(-4, player_body.getLinearVelocity().y));
+										player_body.setLinearVelocity(new Vector2(-3, player_body.getLinearVelocity().y));
 									direction = LEFT;
 								}
 							}
@@ -345,15 +345,7 @@ public class Game extends SimpleBaseGameActivity {
 					return true;
 				}
 
-				if (pSceneTouchEvent.isActionUp()) {
-					//JUMP-------------------------
-					/*
-					if(System.currentTimeMillis() - tap_time < 100){
-						if(footContact == true)
-							player_body.setLinearVelocity(new Vector2(player_body.getLinearVelocity().x, -26f));
-					}
-					 */
-					//------------------------------
+				if (pSceneTouchEvent.isActionUp()){
 					if(direction == RIGHT){
 						player_stop_right();
 						player_body.setLinearVelocity(new Vector2(0, player_body.getLinearVelocity().y));
@@ -391,10 +383,12 @@ public class Game extends SimpleBaseGameActivity {
 			hud.registerTouchArea(go_back);
 			go_back.setScale((float)0.8);
 
-			jump_btn = new ButtonSprite(1050, 400, jump_btn_texture, vertexBufferObjectManager){
+			
+			jump_btn = new ButtonSprite(1050, 600, jump_btn_texture, vertexBufferObjectManager){
 				@Override
 				public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 						float pTouchAreaLocalX, float pTouchAreaLocalY) {
+					if(footContact == true)
 					if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
 						player_body.setLinearVelocity(new Vector2(player_body.getLinearVelocity().x, -26f));
 					}
@@ -402,13 +396,12 @@ public class Game extends SimpleBaseGameActivity {
 				}};
 
 				hud.attachChild(jump_btn);
-				jump_btn.setScale((float)0.8);
 				jump_btn.setAlpha(1);
 				hud.registerTouchArea(jump_btn);
 
 				myChaseCamera.setHUD(hud);
 
-				box_btn =  new ButtonSprite(1050, 600 , box_btn_texture,  vertexBufferObjectManager){
+				box_btn =  new ButtonSprite(850, 600 , box_btn_texture,  vertexBufferObjectManager){
 					@Override
 					public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 							float pTouchAreaLocalX, float pTouchAreaLocalY) {
@@ -466,7 +459,6 @@ public class Game extends SimpleBaseGameActivity {
 						return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
 					}};
 					hud.attachChild(box_btn);
-					box_btn.setScale((float)0.8);
 					box_btn.setAlpha((float) 0.3);
 					hud.registerTouchArea(box_btn);
 
