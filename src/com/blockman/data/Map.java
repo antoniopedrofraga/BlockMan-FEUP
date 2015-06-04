@@ -62,6 +62,25 @@ public class Map {
             map[width - 1][i] = new Box("rock", width - 1, i, null);
        }
     }
+    
+    
+    public void generateTutorial(){
+        width = 18;
+        height = 7;
+        map = new Box[width][height];
+        sprites = new ArrayList<Position>();
+
+        for(int i = 0; i < height; i++){
+            for(int a = 0; a < width; a++){
+                 map[a][i] = new Box("blank", a, i, null);
+            }
+        }
+        
+        for(int i = 0; i < height; i++){
+             map[0][i] = new Box("rock",0,i, null);
+             map[width - 1][i] = new Box("rock", width - 1, i, null);
+        }
+     }
 
     public void pushPos(Position pos){
         sprites.add(pos);
