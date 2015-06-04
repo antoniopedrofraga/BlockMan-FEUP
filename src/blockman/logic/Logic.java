@@ -128,8 +128,6 @@ public class Logic {
 		                    map.getMap()[a + 1][i].setBody(b);
 							return true;
 						}
-						else
-							Log.d("BlockMan", "kind : " + map.getMap()[a][i].getKind());
 					}
 			}
 		return false;

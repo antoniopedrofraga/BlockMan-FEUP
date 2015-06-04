@@ -117,6 +117,7 @@ public class Game extends SimpleBaseGameActivity {
     //----------------------------------
     //Game Variables---------------------
     private boolean carringBox = false;
+    private boolean win = false;
     //------------------------------
     //---------------------------
     private VertexBufferObjectManager vertexBufferObjectManager;
@@ -142,6 +143,7 @@ public class Game extends SimpleBaseGameActivity {
     //--------------------------
     //Add Scene-----------------
     private Scene scene;
+    private IOnSceneTouchListener tListener;
     //--------------------------
     //Buttons-------------------
     private BitmapTextureAtlas go_back_bmp;
@@ -172,7 +174,13 @@ public class Game extends SimpleBaseGameActivity {
     
     private BitmapTextureAtlas box_bmp;
     private ITextureRegion box_layer;
-    Sprite box;
+    private Sprite box;
+    
+    private BitmapTextureAtlas door_bmp;
+    private ITextureRegion door_layer;
+    private Sprite door;
+    
+    
     //----------------------------
     //Controls--------------------
     private long tap_time;
@@ -220,6 +228,11 @@ public class Game extends SimpleBaseGameActivity {
         this.box_bmp = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
         this.box_layer = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.box_bmp, this, "img/box.png", 0, 0);
         this.box_bmp.load();
+        
+        this.door_bmp = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
+        this.door_layer = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.door_bmp, this, "img/signExit.png", 0, 0);
+        this.door_bmp.load();
+
 
         title_font = FontFactory.createFromAsset(mEngine.getFontManager(),
                 mEngine.getTextureManager(), 256, 256, TextureOptions.BILINEAR,
@@ -260,8 +273,8 @@ public class Game extends SimpleBaseGameActivity {
         initPhysics();
         //------------------
 
-        scene.attachChild(player);
         generateMap();
+        scene.attachChild(player);
         scene.attachChild(title);
 
         Log.d(TAG, "Player height :" + player.getHeight());
@@ -270,11 +283,12 @@ public class Game extends SimpleBaseGameActivity {
         FadeOutModifier mModifier = new FadeOutModifier(5.0f);
         title.registerEntityModifier(mModifier);
 
-        scene.setOnSceneTouchListener(new IOnSceneTouchListener() {
+        scene.setOnSceneTouchListener(tListener = new IOnSceneTouchListener() {
             @Override
             public boolean onSceneTouchEvent(Scene pScene, final TouchEvent pSceneTouchEvent) {
                 if (pSceneTouchEvent.isActionDown()) {
                     tap_time = System.currentTimeMillis();
+                    if(!win)
                     if(pSceneTouchEvent.getX() > player.getX()) {
                         if(direction != RIGHT) {
                             if(direction != RIGHT_W_COLLISION) {
@@ -302,6 +316,7 @@ public class Game extends SimpleBaseGameActivity {
                 }
 
                 if (pSceneTouchEvent.isActionMove()) {
+                	if(!win)
                     if(pSceneTouchEvent.getX() > player.getX()) {
                         if(direction != RIGHT) {
                             if(direction != RIGHT_W_COLLISION) {
@@ -470,9 +485,19 @@ public class Game extends SimpleBaseGameActivity {
                     FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(0, 0, 1f);
                     Body b = PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) box, BodyType.StaticBody, wallFixtureDef);
                     map.getMap()[a][i].setBody(b);
-                    Log.d(TAG, "Body fixture size: " + b.getFixtureList().size());
                     b.getFixtureList().get(0).setUserData("box body");
                     scene.attachChild(box);
+                }else if(map.getMap()[a][i].getKind() == "exit"){
+                	map.getMap()[a][i].setSprite(new Sprite(MAP_START_X + SPACING * a + 15, MAP_START_Y - SPACING * i + 30,door_layer, vertexBufferObjectManager));
+                    map.pushPos(new Position(a,i));
+                    scene.attachChild(map.getMap()[a][i].getSprite());
+                    
+                    IShape box = new Rectangle(MAP_START_X + SPACING * a + 45, MAP_START_Y - SPACING * i + 90, 10, 10, getVertexBufferObjectManager());
+                    box.setVisible(PHYSICS_VISIBILITY);
+                    FixtureDef exitFixtureDef = PhysicsFactory.createFixtureDef(0, 0, 0f);
+                    exitFixtureDef.isSensor = true;
+                    Body b = PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) box, BodyType.StaticBody, exitFixtureDef);
+                    b.getFixtureList().get(0).setUserData("exit");
                 }
             }
         }
@@ -521,6 +546,16 @@ public class Game extends SimpleBaseGameActivity {
 				50, 50, 50, 50, 50,
 				50, 50, 50, 50, 50,
 				50}, 1, 16, true);
+    }
+    
+    private void player_wins() {
+    	player.animate(new long[]{100, 100, 100, 100, 100,
+				100, 100, 100, 100, 100,
+				100, 100, 100, 100, 100
+				}, new int[] {385, 384, 383, 382, 381,
+    			380, 379, 378, 377, 376,
+    			375, 374, 373, 372, 371}, 30);
+    	
     }
 
     
@@ -586,6 +621,18 @@ public class Game extends SimpleBaseGameActivity {
                 	}
                 }
                 
+                if(contact.getFixtureA().getUserData() == "body" && contact.getFixtureB().getUserData() == "exit"){
+                	Log.d(TAG, "Reached exit");
+                	player_body.setLinearVelocity(new Vector2(0, 0));
+                	win = true;
+                	player_wins();
+        		}else if(contact.getFixtureB().getUserData() == "body" && contact.getFixtureA().getUserData() == "exit"){
+        			Log.d(TAG, "Reached exit");
+        			player_body.setLinearVelocity(new Vector2(0, 0));
+                	win = true;
+                	player_wins();
+        		}
+                
             }
 
             @Override
@@ -601,6 +648,8 @@ public class Game extends SimpleBaseGameActivity {
             			box_btn.setAlpha((float)0.3);
             		}
             	}
+            	
+            	
             }
 
             @Override
