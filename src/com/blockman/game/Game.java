@@ -29,6 +29,8 @@ import android.widget.Toast;
 
 
 
+import blockman.logic.Logic;
+
 import org.andengine.engine.camera.BoundCamera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.physics.PhysicsHandler;
@@ -112,8 +114,10 @@ public class Game extends SimpleBaseGameActivity {
     final boolean PHYSICS_VISIBILITY = false;
     
     final float WALKING_VY = (float) 1.6424394E-8;
-
-    private String state = "not jumping";
+    //----------------------------------
+    //Game Variables---------------------
+    private boolean carringBox = false;
+    //------------------------------
     //---------------------------
     private VertexBufferObjectManager vertexBufferObjectManager;
     private Sprite back;
@@ -131,6 +135,8 @@ public class Game extends SimpleBaseGameActivity {
     
     private Body sensor_body;
     
+    private Body box_body;
+    
     private boolean footContact = false; //how many footcontact there is
     
     //--------------------------
@@ -145,7 +151,6 @@ public class Game extends SimpleBaseGameActivity {
     private BitmapTextureAtlas box_btn_bmp;
     private ITextureRegion box_btn_texture;
     private ButtonSprite box_btn;
-    private boolean canPickUp = false;
     //--------------------------
     String direction = "";
     //--------------------------
@@ -175,7 +180,10 @@ public class Game extends SimpleBaseGameActivity {
     //Text------------------------
     private Font title_font;
     private Text title;
-
+    //--------------------------
+    //Logic---------------------
+    Logic gameLogic;
+    //--------------------------
 
     @Override
     public EngineOptions onCreateEngineOptions() {
@@ -231,7 +239,7 @@ public class Game extends SimpleBaseGameActivity {
     @Override
     protected Scene onCreateScene() {
         this.mEngine.registerUpdateHandler(new FPSLogger());
-
+        
         scene = new Scene();
         final AutoParallaxBackground autoParallaxBackground = new AutoParallaxBackground(0, 0, 0, 5);
         vertexBufferObjectManager = this.getVertexBufferObjectManager();
@@ -271,7 +279,10 @@ public class Game extends SimpleBaseGameActivity {
                         if(direction != RIGHT) {
                             if(direction != RIGHT_W_COLLISION) {
                                 player_walk_right();
-                                player_body.setLinearVelocity(new Vector2(6, player_body.getLinearVelocity().y));
+                                if(!carringBox)
+                                	player_body.setLinearVelocity(new Vector2(6, player_body.getLinearVelocity().y));
+                                else
+                                	player_body.setLinearVelocity(new Vector2(4, player_body.getLinearVelocity().y));
                                 direction = RIGHT;
                             }
                         }
@@ -279,7 +290,10 @@ public class Game extends SimpleBaseGameActivity {
                         if(direction != LEFT) {
                             if(direction != LEFT_W_COLLISION) {
                                 player_walk_left();
-                                player_body.setLinearVelocity(new Vector2(-6, player_body.getLinearVelocity().y));
+                                if(!carringBox)
+                                	player_body.setLinearVelocity(new Vector2(-6, player_body.getLinearVelocity().y));
+                                else
+                                	player_body.setLinearVelocity(new Vector2(-4, player_body.getLinearVelocity().y));
                                 direction = LEFT;
                             }
                         }
@@ -358,7 +372,53 @@ public class Game extends SimpleBaseGameActivity {
                                          float pTouchAreaLocalX, float pTouchAreaLocalY) {
                 if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
                 	if(box_btn.getAlpha() == 1){
-                		box_btn.registerEntityModifier(click);
+                		Log.d(TAG, "Picked up box");
+                		if(!carringBox){
+                			if(direction == LEFT || direction == STOP_LEFT){
+                				if(gameLogic.remove_box_left(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene)){
+                					Log.d(TAG, "Box removed");
+                					carringBox = true;
+                					new CarringBox().start();
+                				}else{
+                					Log.d(TAG, "Box not removed");
+                				}
+                			}
+                			if(direction == RIGHT || direction == STOP_RIGHT){
+                				if(gameLogic.remove_box_right(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene)){
+                					Log.d(TAG, "Box removed");
+                					carringBox = true;
+                					new CarringBox().start();
+                				}else{
+                					Log.d(TAG, "Box not removed");
+                				}
+                			}
+                			
+                		}else{
+                			boolean space_to_place = true;
+                			if(direction == STOP_LEFT){
+                				if(gameLogic.leave_box_left(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene, box_layer, vertexBufferObjectManager, PHYSICS_VISIBILITY)){
+                					Log.d(TAG, "Box leaved");
+                					carringBox = false;
+                					box_btn.setAlpha((float)0.3);
+                				}else{
+                					Log.d(TAG, "Could not leave the box");
+                					space_to_place = false;
+                				}
+                			}else if(direction == STOP_RIGHT){
+                				if(gameLogic.leave_box_right(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene,  box_layer, vertexBufferObjectManager, PHYSICS_VISIBILITY)){
+                					Log.d(TAG, "Box leaved");
+                					carringBox = false;
+                					box_btn.setAlpha((float)0.3);
+                				}else{
+                					Log.d(TAG, "Could not leave the box");
+                					space_to_place = false;
+                				}
+                			}
+                			if(space_to_place == false)
+                					Game.this.toastOnUIThread("Not enough space to place the box here",
+                		                Toast.LENGTH_SHORT);
+                		}
+                		//box_btn.registerEntityModifier(click);
                 	}
                 }
                 return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
@@ -370,14 +430,16 @@ public class Game extends SimpleBaseGameActivity {
         
         myChaseCamera.setHUD(hud);
 
-        //Generate map
         physicsWorld.setContactListener(createContactListener());
+        
+        gameLogic = new Logic(map,physicsWorld);
 
 
         return scene;
     }
 
-    private void generateMap() {
+
+	private void generateMap() {
         map = new Map();
         map.generateMap();
         for(int i = 0; i < map.getHeight(); i++){
@@ -392,8 +454,8 @@ public class Game extends SimpleBaseGameActivity {
                     IShape box = new Rectangle(MAP_START_X + SPACING * a, MAP_START_Y - SPACING * i, 100, 100, getVertexBufferObjectManager());
                     box.setVisible(PHYSICS_VISIBILITY);
                     FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(0, 0, 1f);
-                    PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) box, BodyType.StaticBody, wallFixtureDef);
-                    
+                    Body b = PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) box, BodyType.StaticBody, wallFixtureDef);
+                    map.getMap()[a][i].setBody(b);
                     scene.attachChild(box);
                     
                     
@@ -407,6 +469,7 @@ public class Game extends SimpleBaseGameActivity {
                     box.setVisible(PHYSICS_VISIBILITY);
                     FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(0, 0, 1f);
                     Body b = PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) box, BodyType.StaticBody, wallFixtureDef);
+                    map.getMap()[a][i].setBody(b);
                     Log.d(TAG, "Body fixture size: " + b.getFixtureList().size());
                     b.getFixtureList().get(0).setUserData("box body");
                     scene.attachChild(box);
@@ -432,9 +495,11 @@ public class Game extends SimpleBaseGameActivity {
     }
 
     private void player_walk_left() {
-    	player.animate(new long[]{40, 40, 40, 40, 40,
-				40, 40, 40, 40, 40,
-				40, 40, 40, 40, 40
+    	long duration = 40;
+    	if(carringBox) duration = 50;
+    	player.animate(new long[]{duration, duration, duration, duration, duration,
+				duration, duration, duration, duration, duration,
+				duration, duration, duration, duration, duration
 				}, new int[] {303, 302, 301, 300
     			, 299, 298, 297, 296, 295
     			,294, 293, 292, 291, 290
@@ -443,10 +508,12 @@ public class Game extends SimpleBaseGameActivity {
     }
 
     private void player_walk_right() {
-    	player.animate(new long[]{40, 40, 40, 40, 40,
-				40, 40, 40, 40, 40,
-				40, 40, 40, 40, 40,
-				40}, /*1*/32, /*16*/47, true);
+    	long duration = 40;
+    	if(carringBox) duration = 50;
+    	player.animate(new long[]{duration, duration, duration, duration, duration,
+				duration, duration, duration, duration, duration,
+				duration, duration, duration, duration, duration,
+				duration}, /*1*/32, /*16*/47, true);
     }
 
     private void player_stop_right() {
@@ -454,11 +521,6 @@ public class Game extends SimpleBaseGameActivity {
 				50, 50, 50, 50, 50,
 				50, 50, 50, 50, 50,
 				50}, 1, 16, true);
-    }
-
-    private String getCollision(){
-
-        return "";
     }
 
     
@@ -490,7 +552,7 @@ public class Game extends SimpleBaseGameActivity {
         player_body.createFixture(sensor, 0).setSensor(true);
         
         PolygonShape sensor_box = new PolygonShape();
-        sensor_box.setAsBox((float)2, (float)0.3,new Vector2(0, 0), 0);
+        sensor_box.setAsBox((float)1, (float)0.3,new Vector2(0, 0), 0);
         player_body.createFixture(sensor_box, 0).setSensor(true);
         
         player_body.getFixtureList().get(2).setUserData("box sensor");
@@ -511,21 +573,18 @@ public class Game extends SimpleBaseGameActivity {
             @Override
             public void beginContact(Contact contact)
             {
-                final Fixture x1 = contact.getFixtureA();
-                final Fixture x2 = contact.getFixtureB();
                 Log.d(TAG, "Contact A: " + contact.getFixtureA().getUserData() + ", Contact B: " + contact.getFixtureB().getUserData());
                 if(contact.getFixtureB().getUserData() == "feet" || contact.getFixtureA().getUserData() == "feet"){
                 	footContact = true;
                 }
                 
-                if(contact.getFixtureA().getUserData() == "box sensor" && contact.getFixtureB().getUserData() == "box body"){
-                	box_btn.setAlpha((float)1);
-                	canPickUp = true;
-                }else if(contact.getFixtureB().getUserData() == "box sensor" && contact.getFixtureA().getUserData() == "box body"){
-                	box_btn.setAlpha((float)1);
-                	canPickUp = true;
+                if(!carringBox){
+                	if(contact.getFixtureA().getUserData() == "box sensor" && contact.getFixtureB().getUserData() == "box body"){
+                		box_btn.setAlpha((float)1);
+                	}else if(contact.getFixtureB().getUserData() == "box sensor" && contact.getFixtureA().getUserData() == "box body"){
+                		box_btn.setAlpha((float)1);
+                	}
                 }
-                
                 
             }
 
@@ -535,14 +594,13 @@ public class Game extends SimpleBaseGameActivity {
             	if(contact.getFixtureB().getUserData() == "feet" || contact.getFixtureA().getUserData() == "feet"){
                 	footContact = false;
                 }
-            	
-            	if(contact.getFixtureA().getUserData() == "box sensor" && contact.getFixtureB().getUserData() == "box body"){
-                	box_btn.setAlpha((float)0.3);
-                	canPickUp = false;
-                }else if(contact.getFixtureB().getUserData() == "box sensor" && contact.getFixtureA().getUserData() == "box body"){
-                	box_btn.setAlpha((float)0.3);
-                	canPickUp = false;
-                }
+            	if(!carringBox){
+            		if(contact.getFixtureA().getUserData() == "box sensor" && contact.getFixtureB().getUserData() == "box body"){
+            			box_btn.setAlpha((float)0.3);
+            		}else if(contact.getFixtureB().getUserData() == "box sensor" && contact.getFixtureA().getUserData() == "box body"){
+            			box_btn.setAlpha((float)0.3);
+            		}
+            	}
             }
 
             @Override
@@ -560,14 +618,6 @@ public class Game extends SimpleBaseGameActivity {
         return contactListener;
     }
    
-
- 
-
-
-
-
-  
-
 
     final SequenceEntityModifier click = new SequenceEntityModifier(new FadeOutModifier(0.10f), new FadeInModifier(0.10f){
         @Override
@@ -590,9 +640,44 @@ public class Game extends SimpleBaseGameActivity {
         		finish();
         	}else if(pItem == box_btn){
         		Log.d(TAG, "Picked up box");
+        		return;
         	}
         }
     });
-
+    
+    class CarringBox extends Thread {
+        public CarringBox() {
+        }
+        public void run() {
+        	final Sprite box = new Sprite(player.getX() + 15, player.getY() - 75, box_layer, vertexBufferObjectManager);
+        	
+        	runOnUpdateThread(new Runnable() {
+        		@Override
+        		// to safely detach and re-attach the sprites
+        		public void run() {
+        			scene.attachChild(box);
+        		}
+        	});
+        	
+        	while(carringBox){
+        		box.setPosition(player.getX() + 15, player.getY() - 75);
+        		try {
+					sleep(5);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+        	}
+        	
+        	runOnUpdateThread(new Runnable() {
+        		@Override
+        		// to safely detach and re-attach the sprites
+        		public void run() {
+        			scene.detachChild(box);
+                	box.detachSelf();
+                	box.dispose();
+        		}
+        	});
+        }
+    }
 
 }
