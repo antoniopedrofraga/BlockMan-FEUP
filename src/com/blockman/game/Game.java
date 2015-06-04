@@ -646,12 +646,10 @@ public class Game extends SimpleBaseGameActivity {
 					Log.d(TAG, "Reached exit");
 					player_body.setLinearVelocity(new Vector2(0, 0));
 					win = true;
-					player_wins();
 				}else if(contact.getFixtureB().getUserData() == "body" && contact.getFixtureA().getUserData() == "exit"){
 					Log.d(TAG, "Reached exit");
 					player_body.setLinearVelocity(new Vector2(0, 0));
 					win = true;
-					player_wins();
 				}
 
 			}
