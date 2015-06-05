@@ -163,36 +163,42 @@ public class MainMenu extends SimpleBaseGameActivity {
                 }else if(pItem == lv1){
                     Intent game = new Intent(getBaseContext(), Game.class);
                     game.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    game.putExtra("level", "1");
                     startActivity(game);
                     finish();
                 }
                 else if(pItem == lv2){
                     Intent game = new Intent(getBaseContext(), Game.class);
                     game.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    game.putExtra("level", "2");
                     startActivity(game);
                     finish();
                 }
                 else if(pItem == lv3){
                     Intent game = new Intent(getBaseContext(), Game.class);
                     game.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    game.putExtra("level", "3");
                     startActivity(game);
                     finish();
                 }
                 else if(pItem == lv4){
                     Intent game = new Intent(getBaseContext(), Game.class);
                     game.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    game.putExtra("level", "4");
                     startActivity(game);
                     finish();
                 }
                 else if(pItem == lv5){
                     Intent game = new Intent(getBaseContext(), Game.class);
                     game.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    game.putExtra("level", "5");
                     startActivity(game);
                     finish();
                 }
                 else if(pItem == lv6){
                     Intent game = new Intent(getBaseContext(), Game.class);
                     game.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    game.putExtra("level", "6");
                     startActivity(game);
                     finish();
                 }
@@ -301,7 +307,7 @@ public class MainMenu extends SimpleBaseGameActivity {
                         	scene.attachChild(lv3);
                         	scene.attachChild(lv4);
                         	scene.attachChild(lv5);
-                        	scene.attachChild(lv6);
+                        	//scene.attachChild(lv6);
                         	scene.attachChild(quit);
                         	scene.registerTouchArea(quit);
                         	scene.registerTouchArea(lv1);
@@ -309,7 +315,7 @@ public class MainMenu extends SimpleBaseGameActivity {
                         	scene.registerTouchArea(lv3);
                         	scene.registerTouchArea(lv4);
                         	scene.registerTouchArea(lv5);
-                        	scene.registerTouchArea(lv6);
+                        	//scene.registerTouchArea(lv6);
                         }
                     }
                     tap++;
@@ -335,7 +341,7 @@ public class MainMenu extends SimpleBaseGameActivity {
             	scene.attachChild(lv3);
             	scene.attachChild(lv4);
             	scene.attachChild(lv5);
-            	scene.attachChild(lv6);
+            	//scene.attachChild(lv6);
             	scene.attachChild(quit);
             	scene.registerTouchArea(quit);
             	scene.registerTouchArea(lv1);
@@ -343,7 +349,7 @@ public class MainMenu extends SimpleBaseGameActivity {
             	scene.registerTouchArea(lv3);
             	scene.registerTouchArea(lv4);
             	scene.registerTouchArea(lv5);
-            	scene.registerTouchArea(lv6);
+            	//scene.registerTouchArea(lv6);
             	tap++;
             }
         }else{

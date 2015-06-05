@@ -6,6 +6,7 @@ import java.io.IOException;
 import android.content.Intent;
 import android.hardware.SensorManager;
 import android.media.MediaPlayer;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 import blockman.logic.Logic;
@@ -209,18 +210,18 @@ public class Game extends SimpleBaseGameActivity {
 		//myChaseCamera.setCenter(CAMERA_WIDTH/3, 7 * CAMERA_HEIGHT / 9);
 		myChaseCamera.setBoundsEnabled(true);
 		myChaseCamera.setBounds(0 , 0, 3000 , 1708);
-		
+
 		EngineOptions options = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new FillResolutionPolicy(), myChaseCamera);
-		
+
 		options.getAudioOptions().setNeedsMusic(true);
 		options.getAudioOptions().setNeedsSound(true);
-		 
+
 		return options;
 	}
 
 	@Override
 	protected void onCreateResources() {
-		
+
 		try {
 			this.musicPlayer = MusicFactory.createMusicFromAsset(mEngine.getMusicManager(), this,"Pokemon.mp3");
 			this.musicPlayer.setLooping(true);
@@ -232,7 +233,7 @@ public class Game extends SimpleBaseGameActivity {
 			Log.d(TAG, "Erro a ler musica");
 			e.printStackTrace();
 		}	
-		
+
 		this.myBackgroundTexture = new BitmapTextureAtlas(this.getTextureManager(), 3000, 1708);
 		this.myLayerFront = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.myBackgroundTexture, this, "ingame_back.jpg", 0, 0);
 		this.myLayerMid = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.myBackgroundTexture, this, "clouds.png", 0, 188);
@@ -305,12 +306,12 @@ public class Game extends SimpleBaseGameActivity {
 
 		back = new Sprite(0, CAMERA_HEIGHT - this.myLayerFront.getHeight(), this.myLayerFront, vertexBufferObjectManager);
 		scene.attachChild(back);
-		
+
 		player = new AnimatedSprite(PLAYER_START_X, PLAYER_START_Y , this.mPlayerTextureRegion, vertexBufferObjectManager);
 		player.setScaleCenterY(this.mPlayerTextureRegion.getHeight() - 80);
 		player.setScale((float)0.7);
 		player_stop();
-		
+
 		//---------------------
 		//add physics
 		initPhysics();
@@ -438,7 +439,7 @@ public class Game extends SimpleBaseGameActivity {
 				}};
 
 
-				
+
 				play_btn = new ButtonSprite(1050, 50, play_btn_texture, vertexBufferObjectManager){
 					@Override
 					public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
@@ -462,7 +463,7 @@ public class Game extends SimpleBaseGameActivity {
 							}
 						return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
 					}};
-					
+
 
 					hud.attachChild(play_btn);
 					play_btn.setAlpha(1);
@@ -560,7 +561,24 @@ public class Game extends SimpleBaseGameActivity {
 
 	private void generateMap() {
 		map = new Map();
-		map.generateLevel3();
+
+		Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			String data = (String)extras.getString("level");
+			if (data.equals("1"))
+				map.generateMap();
+			else if (data.equals("2"))
+				map.generateLevel2();
+			else if (data.equals("3"))
+				map.generateLevel3();
+			else if (data.equals("4"))
+				map.generateLevel4();
+			else if (data.equals("5"))
+				map.generateLevel5();
+			else if (data.equals("6"))
+				map.generateTutorial();
+			else map.generateMap();
+		}
 
 		EXIT_X = 200;
 		EXIT_Y = CAMERA_HEIGHT / 2 - 300;
