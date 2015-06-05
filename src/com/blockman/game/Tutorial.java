@@ -48,6 +48,7 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.color.Color;
 import org.andengine.util.debug.Debug;
+import org.apache.http.protocol.HTTP;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -426,14 +427,14 @@ public class Tutorial extends SimpleBaseGameActivity {
 							if(box_btn.getAlpha() == 1){
 								Log.d(TAG, "Picked up box");
 								if(!carringBox){
-									if(state == 4){
-										Tutorial.this.toastOnUIThread("Nicely done!",
-												Toast.LENGTH_SHORT);
-										state = 5;
-										new Tut().start();
-									}
 									if(direction == LEFT || direction == STOP_LEFT){
 										if(gameLogic.remove_box_left(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene)){
+											if(state == 4){
+												Tutorial.this.toastOnUIThread("Nicely done!",
+														Toast.LENGTH_SHORT);
+												state = 5;
+												new Tut().start();
+											}
 											Log.d(TAG, "Box removed");
 											carringBox = true;
 											new CarringBox().start();
@@ -443,6 +444,12 @@ public class Tutorial extends SimpleBaseGameActivity {
 									}
 									if(direction == RIGHT || direction == STOP_RIGHT){
 										if(gameLogic.remove_box_right(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene)){
+											if(state == 4){
+												Tutorial.this.toastOnUIThread("Nicely done!",
+														Toast.LENGTH_SHORT);
+												state = 5;
+												new Tut().start();
+											}
 											Log.d(TAG, "Box removed");
 											carringBox = true;
 											new CarringBox().start();
@@ -649,9 +656,6 @@ public class Tutorial extends SimpleBaseGameActivity {
 
 		scene.registerUpdateHandler(physicsWorld);
 
-		DebugRenderer debug = new DebugRenderer(physicsWorld, getVertexBufferObjectManager());
-		scene.attachChild(debug);
-
 	}
 
 	private ContactListener createContactListener()
@@ -738,18 +742,14 @@ public class Tutorial extends SimpleBaseGameActivity {
 		@Override
 		protected void onModifierFinished(IEntity pItem)
 		{
-			if(pItem == go_back){
 				super.onModifierFinished(pItem);
 				Intent back = new Intent(getBaseContext(), MainMenu.class);
 				back.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+				back.putExtra("isBack", "back");
 				startActivity(back);
 				direction = "finish";
 				scene.clearChildScene();
-				finish();
-			}else if(pItem == box_btn){
-				Log.d(TAG, "Picked up box");
-				return;
-			}
+				Tutorial.this.finish();
 		}
 	});
 

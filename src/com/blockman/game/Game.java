@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.hardware.SensorManager;
 import android.util.Log;
 import android.widget.Toast;
-
 import blockman.logic.Logic;
 
 import org.andengine.engine.camera.BoundCamera;
@@ -48,6 +47,7 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.color.Color;
 import org.andengine.util.debug.Debug;
+import org.apache.http.protocol.HTTP;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -89,7 +89,6 @@ public class Game extends SimpleBaseGameActivity {
 
 	final boolean PHYSICS_VISIBILITY = false;
 
-	final float WALKING_VY = (float) 1.6424394E-8;
 	//----------------------------------
 	//Game Variables---------------------
 	private boolean carringBox = false;
@@ -267,7 +266,7 @@ public class Game extends SimpleBaseGameActivity {
 
 		generateMap();
 		
-		this.winningMessage = new Text(EXIT_X, EXIT_Y, title_font, "LEVEL 1 WON",getVertexBufferObjectManager());
+		this.winningMessage = new Text(EXIT_X, EXIT_Y, title_font, "LEVEL COMPLETED",getVertexBufferObjectManager());
 		
 		scene.attachChild(player);
 		scene.attachChild(title);
@@ -463,7 +462,7 @@ public class Game extends SimpleBaseGameActivity {
 		map = new Map();
 		map.generateMap();
 		
-		EXIT_X = 300 + 100 * (map.getExitX() + 2);
+		EXIT_X = 200;
 		EXIT_Y = CAMERA_HEIGHT / 2 - 300;
 		
 		for(int i = 0; i < map.getHeight(); i++){
@@ -690,18 +689,13 @@ public class Game extends SimpleBaseGameActivity {
 		@Override
 		protected void onModifierFinished(IEntity pItem)
 		{
-			if(pItem == go_back){
 				super.onModifierFinished(pItem);
 				Intent back = new Intent(getBaseContext(), MainMenu.class);
 				back.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+				back.putExtra("isBack", "back");
 				startActivity(back);
-				direction = "finish";
 				scene.clearChildScene();
-				finish();
-			}else if(pItem == box_btn){
-				Log.d(TAG, "Picked up box");
-				return;
-			}
+				Game.this.finish();
 		}
 	});
 
