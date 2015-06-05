@@ -417,6 +417,7 @@ public class Game extends SimpleBaseGameActivity {
 								}else{
 									boolean space_to_place = true;
 									if(direction == STOP_LEFT){
+										Log.d("Teste", "Player Y = " + player.getY() + " Map start y = " + MAP_START_Y);
 										if(gameLogic.leave_box_left(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene, box_layer, vertexBufferObjectManager, PHYSICS_VISIBILITY)){
 											Log.d(TAG, "Box leaved");
 											carringBox = false;
@@ -579,7 +580,7 @@ public class Game extends SimpleBaseGameActivity {
 		scene.attachChild(bottom);
 
 		//Add player-----------
-		final FixtureDef playerFixtureDef = PhysicsFactory.createFixtureDef(2, 0, 0f);
+		final FixtureDef playerFixtureDef = PhysicsFactory.createFixtureDef(0, 0, 0f);
 		final IShape player_shape = new Rectangle(PLAYER_START_X, PLAYER_START_Y, 40, 60, getVertexBufferObjectManager());
 
 		player_body = PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) player_shape, BodyType.DynamicBody,  playerFixtureDef);
