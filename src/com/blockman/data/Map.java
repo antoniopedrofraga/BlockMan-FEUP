@@ -82,6 +82,11 @@ public class Map {
 		exit_x = 12;
 		exit_y = 0;
 		map[12][0] = new Box("exit", 1, 0, null);
+		
+		for(int i = 0; i < height; i++){
+			map[0][i] = new Box("rock",0,i, null);
+			map[width - 1][i] = new Box("rock", width - 1, i, null);
+		}
 	}
 
 	public void generateLevel2(){
@@ -105,12 +110,17 @@ public class Map {
 		map[11][0] = new Box("rock", 6, 0, null);
 		map[11][1] = new Box("rock", 6, 0, null);
 		
-		map[6][-2] = new Box("box", 6, 0, null);
+		map[6][0] = new Box("box", 6, 0, null);
 		
-		map[3][0] = new Box("rock", 6, 0, null);
 		exit_x = 0;
 		exit_y = 2;
-		map[12][0] = new Box("exit", 1, 0, null);
+		
+		map[10][0] = new Box("exit", 1, 0, null);
+		
+		for(int i = 0; i < height; i++){
+			map[0][i] = new Box("rock",0,i, null);
+			map[width - 1][i] = new Box("rock", width - 1, i, null);
+		}
 	}
 
 
