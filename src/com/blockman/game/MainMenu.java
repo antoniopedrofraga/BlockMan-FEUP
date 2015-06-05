@@ -50,7 +50,6 @@ public class MainMenu extends SimpleBaseGameActivity {
     private static final int CAMERA_WIDTH = 1270;
     private static final int CAMERA_HEIGHT = 800;
 
-
     private BitmapTextureAtlas mBitmapTextureAtlas;
     private TiledTextureRegion mPlayerTextureRegion;
     private TiledTextureRegion mEnemyTextureRegion;

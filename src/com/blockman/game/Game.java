@@ -84,7 +84,7 @@ public class Game extends SimpleBaseGameActivity {
 	private static final int MAP_START_Y = 7 * CAMERA_HEIGHT / 12 - 100;
 	private static final int SPACING = 100;
 
-	final float PLAYER_START_X = 300 + 100 * 15;
+	final float PLAYER_START_X = 300 + 100 * 16;
 	final float PLAYER_START_Y = 7 * CAMERA_HEIGHT / 12 - 60;
 
 	final boolean PHYSICS_VISIBILITY = false;
