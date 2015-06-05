@@ -1,17 +1,25 @@
 package com.blockman.game;
 
+import java.io.File;
+import java.io.IOException;
+
 import android.content.Intent;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.util.Log;
 import android.widget.Toast;
 import blockman.logic.Logic;
 
+import org.andengine.audio.music.Music;
+import org.andengine.audio.music.MusicFactory;
+import org.andengine.engine.Engine;
 import org.andengine.engine.camera.BoundCamera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.physics.PhysicsHandler;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
+import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.Entity;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.EntityModifier;
@@ -133,10 +141,16 @@ public class Game extends SimpleBaseGameActivity {
 	private BitmapTextureAtlas jump_btn_bmp;
 	private ITextureRegion jump_btn_texture;
 	private ButtonSprite jump_btn;
-	
+
 	private BitmapTextureAtlas refresh_btn_bmp;
 	private ITextureRegion refresh_btn_texture;
 	private ButtonSprite refresh_btn;
+
+	private BitmapTextureAtlas play_btn_bmp;
+	private ITextureRegion play_btn_texture;
+	//private BitmapTextureAtlas stop_btn_bmp;
+	//private ITextureRegion stop_btn_texture;
+	private ButtonSprite play_btn;
 	//--------------------------
 	String direction = "";
 	//--------------------------
@@ -164,6 +178,10 @@ public class Game extends SimpleBaseGameActivity {
 	private ITextureRegion door_layer;
 	private Sprite door;
 
+	//--------
+	//MUSIC
+	private Music musicPlayer;
+	//--------
 
 	//----------------------------
 	//Controls--------------------
@@ -191,11 +209,30 @@ public class Game extends SimpleBaseGameActivity {
 		//myChaseCamera.setCenter(CAMERA_WIDTH/3, 7 * CAMERA_HEIGHT / 9);
 		myChaseCamera.setBoundsEnabled(true);
 		myChaseCamera.setBounds(0 , 0, 3000 , 1708);
-		return new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new FillResolutionPolicy(), myChaseCamera);
+		
+		EngineOptions options = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new FillResolutionPolicy(), myChaseCamera);
+		
+		options.getAudioOptions().setNeedsMusic(true);
+		options.getAudioOptions().setNeedsSound(true);
+		 
+		return options;
 	}
 
 	@Override
 	protected void onCreateResources() {
+		
+		try {
+			this.musicPlayer = MusicFactory.createMusicFromAsset(mEngine.getMusicManager(), this,"Pokemon.mp3");
+			this.musicPlayer.setLooping(true);
+			Log.d(TAG, "Leu musica");
+		} catch (IllegalStateException e) {
+			Log.d(TAG, "Erro a ler musica");
+			e.printStackTrace();
+		} catch (IOException e) {
+			Log.d(TAG, "Erro a ler musica");
+			e.printStackTrace();
+		}	
+		
 		this.myBackgroundTexture = new BitmapTextureAtlas(this.getTextureManager(), 3000, 1708);
 		this.myLayerFront = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.myBackgroundTexture, this, "ingame_back.jpg", 0, 0);
 		this.myLayerMid = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.myBackgroundTexture, this, "clouds.png", 0, 188);
@@ -217,14 +254,18 @@ public class Game extends SimpleBaseGameActivity {
 		this.box_btn_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.box_btn_bmp, this, "box_btn.png", 0, 0);
 		this.box_btn_bmp.load();
 
+		this.play_btn_bmp = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
+		this.play_btn_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.play_btn_bmp, this, "play.png", 0, 0);
+		this.play_btn_bmp.load();
+
 		this.jump_btn_bmp = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
 		this.jump_btn_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.jump_btn_bmp, this, "jump_btn.png", 0, 0);
 		this.jump_btn_bmp.load();
-		
+
 		this.refresh_btn_bmp = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
 		this.refresh_btn_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.refresh_btn_bmp, this, "retry.png", 0, 0);
 		this.refresh_btn_bmp.load();
-		
+
 
 		this.box_bmp = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
 		this.box_layer = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.box_bmp, this, "img/box.png", 0, 0);
@@ -246,6 +287,7 @@ public class Game extends SimpleBaseGameActivity {
 		this.rock_bmp.load();
 
 		this.title = new Text(PLAYER_START_X - 190, CAMERA_HEIGHT / 2 - 300, title_font, "LEVEL 1",getVertexBufferObjectManager());
+
 	}
 
 	@Override
@@ -253,7 +295,8 @@ public class Game extends SimpleBaseGameActivity {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
 		scene = new Scene();
-		
+		musicPlayer.play();
+
 		final AutoParallaxBackground autoParallaxBackground = new AutoParallaxBackground(0, 0, 0, 5);
 		vertexBufferObjectManager = this.getVertexBufferObjectManager();
 		autoParallaxBackground.attachParallaxEntity(new ParallaxBackground.ParallaxEntity(0f, new Sprite(0, CAMERA_HEIGHT - this.myLayerFront.getHeight(), this.myLayerFront, vertexBufferObjectManager)));
@@ -274,9 +317,9 @@ public class Game extends SimpleBaseGameActivity {
 		//------------------
 
 		generateMap();
-		
+
 		this.winningMessage = new Text(200, 50, title_font, "LEVEL COMPLETED",getVertexBufferObjectManager());
-		
+
 		scene.attachChild(player);
 		scene.attachChild(title);
 
@@ -383,7 +426,7 @@ public class Game extends SimpleBaseGameActivity {
 			hud.attachChild(go_back);
 			hud.registerTouchArea(go_back);
 			go_back.setScale((float)0.8);
-			
+
 			refresh_btn =  new ButtonSprite(1270 - 450, 325 , refresh_btn_texture,  vertexBufferObjectManager){
 				@Override
 				public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
@@ -393,105 +436,139 @@ public class Game extends SimpleBaseGameActivity {
 					}
 					return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
 				}};
-		
 
 
-			jump_btn = new ButtonSprite(1050, 600, jump_btn_texture, vertexBufferObjectManager){
-				@Override
-				public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
-						float pTouchAreaLocalX, float pTouchAreaLocalY) {
-					if(footContact == true && win == false)
-						if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
-							player_body.setLinearVelocity(new Vector2(player_body.getLinearVelocity().x, -26f));
-						}
-					return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
-				}};
-
-				hud.attachChild(jump_btn);
-				jump_btn.setAlpha(1);
-				hud.registerTouchArea(jump_btn);
-
-				myChaseCamera.setHUD(hud);
-
-				box_btn =  new ButtonSprite(850, 600 , box_btn_texture,  vertexBufferObjectManager){
+				
+				play_btn = new ButtonSprite(1050, 50, play_btn_texture, vertexBufferObjectManager){
 					@Override
 					public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 							float pTouchAreaLocalX, float pTouchAreaLocalY) {
-						if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
-							if(box_btn.getAlpha() == 1){
-								Log.d(TAG, "Picked up box");
-								if(!carringBox){
-									if(direction == LEFT || direction == STOP_LEFT){
-										if(gameLogic.remove_box_left(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene)){
-											Log.d(TAG, "Box removed");
-											carringBox = true;
-											new CarringBox().start();
-										}else{
-											Log.d(TAG, "Box not removed");
-										}
-									}
-									if(direction == RIGHT || direction == STOP_RIGHT){
-										if(gameLogic.remove_box_right(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene)){
-											Log.d(TAG, "Box removed");
-											carringBox = true;
-											new CarringBox().start();
-										}else{
-											Log.d(TAG, "Box not removed");
-										}
-									}
-
-								}else{
-									boolean space_to_place = true;
-									if(direction == STOP_LEFT){
-										Log.d("Teste", "Player Y = " + player.getY() + " Map start y = " + MAP_START_Y);
-										if(gameLogic.leave_box_left(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene, box_layer, vertexBufferObjectManager, PHYSICS_VISIBILITY)){
-											Log.d(TAG, "Box leaved");
-											carringBox = false;
-											box_btn.setAlpha((float)0.3);
-										}else{
-											Log.d(TAG, "Could not leave the box");
-											space_to_place = false;
-										}
-									}else if(direction == STOP_RIGHT){
-										if(gameLogic.leave_box_right(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene,  box_layer, vertexBufferObjectManager, PHYSICS_VISIBILITY)){
-											Log.d(TAG, "Box leaved");
-											carringBox = false;
-											box_btn.setAlpha((float)0.3);
-										}else{
-											Log.d(TAG, "Could not leave the box");
-											space_to_place = false;
-										}
-									}
-									if(space_to_place == false)
-										Game.this.toastOnUIThread("Not enough space to place the box here",
-												Toast.LENGTH_SHORT);
+						if(win == false)
+							if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+								if (musicPlayer.isPlaying())
+								{
+									
+									Log.d(TAG, "Pause Music");
+									play_btn.setAlpha((float) 0.1);
+									//play_btn_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.play_btn_bmp, this, "stop.png", 0, 0);
+									musicPlayer.pause();
+									
 								}
-								//box_btn.registerEntityModifier(click);
+								else
+								{
+									
+									Log.d(TAG, "Play Music");
+									play_btn.setAlpha(1);
+									//play_btn_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.play_btn_bmp, this, "play.png", 0, 0);
+									musicPlayer.resume();
+									
+								}
 							}
-						}
 						return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
 					}};
-					hud.attachChild(box_btn);
-					box_btn.setAlpha((float) 0.3);
-					hud.registerTouchArea(box_btn);
+					
 
-					myChaseCamera.setHUD(hud);
+					hud.attachChild(play_btn);
+					play_btn.setAlpha(1);
+					hud.registerTouchArea(play_btn);	
 
-					physicsWorld.setContactListener(createContactListener());
 
-					gameLogic = new Logic(map,physicsWorld);
+					jump_btn = new ButtonSprite(1050, 600, jump_btn_texture, vertexBufferObjectManager){
+						@Override
+						public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+								float pTouchAreaLocalX, float pTouchAreaLocalY) {
+							if(footContact == true && win == false)
+								if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+									player_body.setLinearVelocity(new Vector2(player_body.getLinearVelocity().x, -26f));
+								}
+							return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+						}};
 
-					return scene;
+						hud.attachChild(jump_btn);
+						jump_btn.setAlpha(1);
+						hud.registerTouchArea(jump_btn);
+
+						myChaseCamera.setHUD(hud);
+
+						box_btn =  new ButtonSprite(850, 600 , box_btn_texture,  vertexBufferObjectManager){
+							@Override
+							public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+									float pTouchAreaLocalX, float pTouchAreaLocalY) {
+								if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+									if(box_btn.getAlpha() == 1){
+										Log.d(TAG, "Picked up box");
+										if(!carringBox){
+											if(direction == LEFT || direction == STOP_LEFT){
+												if(gameLogic.remove_box_left(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene)){
+													Log.d(TAG, "Box removed");
+													carringBox = true;
+													new CarringBox().start();
+												}else{
+													Log.d(TAG, "Box not removed");
+												}
+											}
+											if(direction == RIGHT || direction == STOP_RIGHT){
+												if(gameLogic.remove_box_right(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene)){
+													Log.d(TAG, "Box removed");
+													carringBox = true;
+													new CarringBox().start();
+												}else{
+													Log.d(TAG, "Box not removed");
+												}
+											}
+
+										}else{
+											boolean space_to_place = true;
+											if(direction == STOP_LEFT){
+												Log.d("Teste", "Player Y = " + player.getY() + " Map start y = " + MAP_START_Y);
+												if(gameLogic.leave_box_left(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene, box_layer, vertexBufferObjectManager, PHYSICS_VISIBILITY)){
+													Log.d(TAG, "Box leaved");
+													carringBox = false;
+													box_btn.setAlpha((float)0.3);
+												}else{
+													Log.d(TAG, "Could not leave the box");
+													space_to_place = false;
+												}
+											}else if(direction == STOP_RIGHT){
+												if(gameLogic.leave_box_right(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene,  box_layer, vertexBufferObjectManager, PHYSICS_VISIBILITY)){
+													Log.d(TAG, "Box leaved");
+													carringBox = false;
+													box_btn.setAlpha((float)0.3);
+												}else{
+													Log.d(TAG, "Could not leave the box");
+													space_to_place = false;
+												}
+											}
+											if(space_to_place == false)
+												Game.this.toastOnUIThread("Not enough space to place the box here",
+														Toast.LENGTH_SHORT);
+										}
+										//box_btn.registerEntityModifier(click);
+									}
+								}
+								return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+							}};
+							hud.attachChild(box_btn);
+							box_btn.setAlpha((float) 0.3);
+							hud.registerTouchArea(box_btn);
+
+							myChaseCamera.setHUD(hud);
+
+							physicsWorld.setContactListener(createContactListener());
+
+							gameLogic = new Logic(map,physicsWorld);
+
+							return scene;
 	}
 
 
 	private void generateMap() {
 		map = new Map();
 		map.generateMap();
-		
+
 		EXIT_X = 200;
 		EXIT_Y = CAMERA_HEIGHT / 2 - 300;
-		
+
 		for(int i = 0; i < map.getHeight(); i++){
 			for(int a = 0; a < map.getWidth(); a++){
 				if(map.getMap()[a][i].getKind() == "rock"){
@@ -660,11 +737,11 @@ public class Game extends SimpleBaseGameActivity {
 					hud.attachChild(winningMessage);
 					go_back.setPosition(350, 325);
 					go_back.setScale(1.5f);
-					
+
 					hud.attachChild(refresh_btn);
 					refresh_btn.setScale(1.5f);
 					hud.registerTouchArea(refresh_btn);
-					
+
 					//player_body.setLinearVelocity(new Vector2(0, 0));
 					jump_btn.setAlpha((float) 0.3);
 					win = true;
@@ -675,7 +752,7 @@ public class Game extends SimpleBaseGameActivity {
 					go_back.setPosition(350, 325);
 					go_back.setScale(1.5f);
 					go_back.setAlpha(0.9f);
-					
+
 					hud.attachChild(refresh_btn);
 					refresh_btn.setScale(1.5f);
 					hud.registerTouchArea(refresh_btn);
