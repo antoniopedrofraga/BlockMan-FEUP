@@ -1,6 +1,7 @@
 package com.blockman.game;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -67,10 +68,14 @@ public class MainMenu extends SimpleBaseGameActivity {
     private ITextureRegion mParallaxLayerBack;
     private ITextureRegion myLayerMid;
     private ITextureRegion myLayerFront;
+    
     private Font myFont;
     private Font title_font;
+    private Font level_font;
+    
     private Text txt;
     private Text title;
+    private Text pick_level;
 
     private ButtonSprite lv1;
     private ButtonSprite quit;
@@ -143,7 +148,7 @@ public class MainMenu extends SimpleBaseGameActivity {
             }
         });
 
-        lv1 =  new ButtonSprite(200, 100, level1_texture,  vertexBufferObjectManager)
+        lv1 =  new ButtonSprite(200, 200, level1_texture,  vertexBufferObjectManager)
         {
             @Override
             public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
@@ -155,7 +160,7 @@ public class MainMenu extends SimpleBaseGameActivity {
             }};
 
 
-        quit =  new ButtonSprite(CAMERA_WIDTH - 200, CAMERA_HEIGHT - 300 , quit_texture,  vertexBufferObjectManager)
+        quit =  new ButtonSprite(CAMERA_WIDTH - 200, CAMERA_HEIGHT - 200 , quit_texture,  vertexBufferObjectManager)
              {
                 @Override
                 public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
@@ -166,19 +171,29 @@ public class MainMenu extends SimpleBaseGameActivity {
                 return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
         }};
 
-        quit.setScale((float)1.4);
-        lv1.setScale((float)1.4);
+        quit.setScale((float)0.8);
+        lv1.setScale((float)0.8);
          scene.setOnSceneTouchListener(new IOnSceneTouchListener() {
             @Override
             public boolean onSceneTouchEvent(Scene pScene, final TouchEvent pSceneTouchEvent) {
                 if (pSceneTouchEvent.isActionDown()) {
                     if(tap == 0) {
-                        scene.detachChild(txt);
-                        scene.detachChild(title);
-                        scene.attachChild(lv1);
-                        scene.attachChild(quit);
-                        scene.registerTouchArea(quit);
-                        scene.registerTouchArea(lv1);
+						SharedPreferences settings = getSharedPreferences("data", 0);
+                        int silent = settings.getInt("currLevel", -1);
+                        if(silent == -1){
+                        	Intent tut = new Intent(getBaseContext(), Tutorial.class);
+                        	tut.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        	startActivity(tut);
+                        	finish();
+                        }else{
+                        	scene.detachChild(txt);
+                        	scene.detachChild(title);
+                        	scene.attachChild(pick_level);
+                        	scene.attachChild(lv1);
+                        	scene.attachChild(quit);
+                        	scene.registerTouchArea(quit);
+                        	scene.registerTouchArea(lv1);
+                        }
                     }
                     tap++;
                     return true;
@@ -225,9 +240,16 @@ public class MainMenu extends SimpleBaseGameActivity {
                 this.getAssets(), "fonts/3Dumb.ttf", 90f, true,
                 Color.BLACK_ABGR_PACKED_INT);
         title_font.load();
+        
+        level_font = FontFactory.createFromAsset(mEngine.getFontManager(),
+                mEngine.getTextureManager(), 256, 256, TextureOptions.BILINEAR,
+                this.getAssets(), "fonts/3Dumb.ttf", 75f, true,
+                Color.BLACK_ABGR_PACKED_INT);
+        level_font.load();
 
         this.txt = new Text(CAMERA_WIDTH / 2 - 160, CAMERA_HEIGHT / 2, myFont, "Tap to play",getVertexBufferObjectManager());
         this.title = new Text(CAMERA_WIDTH / 2 - 270, CAMERA_HEIGHT / 4, title_font, "BLOCK MAN",getVertexBufferObjectManager());
+        this.pick_level = new Text(CAMERA_WIDTH / 2 - 245, CAMERA_HEIGHT / 4 - 130, level_font, "PICK A LEVEL",getVertexBufferObjectManager());
     }
 
 

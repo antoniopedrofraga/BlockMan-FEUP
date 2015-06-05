@@ -39,7 +39,7 @@ public class Box {
     }
     
     public void setBody(Body b){
-    	this.body = b;
+    	this.body = b ;
     }
     
     public Body getBody(){
