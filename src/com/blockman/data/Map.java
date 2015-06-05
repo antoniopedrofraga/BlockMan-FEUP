@@ -91,8 +91,8 @@ public class Map {
 
 	public void generateLevel2(){
 
-		width = 18;
-		height = 7;
+		width = 23;
+		height = 9;
 		map = new Box[width][height];
 		sprites = new ArrayList<Position>();
 
@@ -101,21 +101,28 @@ public class Map {
 				map[a][i] = new Box("blank", a, i, null);
 			}
 		}
+		for(int i = 0; i < 3; i++){
+			for(int a = 1; a < 6; a++){
+				map[a][i] = new Box("rock", 6, 0, null);
+			}
+		}
 		
-		map[15][0] = new Box("box", 6, 0, null);
-		map[14][0] = new Box("box", 6, 0, null);
-		map[14][1] = new Box("box", 6, 0, null);
-		map[12][0] = new Box("box", 6, 0, null);
-		
-		map[11][0] = new Box("rock", 6, 0, null);
-		map[11][1] = new Box("rock", 6, 0, null);
-		
-		map[6][0] = new Box("box", 6, 0, null);
+		map[1][3] = new Box("rock", 6, 0, null);
+		map[1][4] = new Box("rock", 6, 0, null);
+		map[1][5] = new Box("rock", 6, 0, null);
+		for(int i = 9; i < width - 1; i++){
+			for(int a = 0; a < 3; a++){
+				map[i][a] = new Box("rock", 6, 0, null);
+			}
+		}
+		map[8][0] = new Box("box", 6, 0, null);
+		map[14][3] = new Box("rock", 6, 0, null);
+		map[14][4] = new Box("rock", 6, 0, null);
 		
 		exit_x = 0;
 		exit_y = 2;
 		
-		map[10][0] = new Box("exit", 1, 0, null);
+		map[1][6] = new Box("exit", 1, 0, null);
 		
 		for(int i = 0; i < height; i++){
 			map[0][i] = new Box("rock",0,i, null);

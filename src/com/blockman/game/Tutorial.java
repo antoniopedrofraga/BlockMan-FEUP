@@ -328,16 +328,20 @@ public class Tutorial extends SimpleBaseGameActivity {
 						if(pSceneTouchEvent.getX() > player.getX()) {
 							if(direction != RIGHT) {
 								if(direction != RIGHT_W_COLLISION) {
-									player_walk_right();
-									player_body.setLinearVelocity(new Vector2(6, player_body.getLinearVelocity().y));
+									if(!carringBox)
+										player_body.setLinearVelocity(new Vector2(6, player_body.getLinearVelocity().y));
+									else
+										player_body.setLinearVelocity(new Vector2(3, player_body.getLinearVelocity().y));
 									direction = RIGHT;
 								}
 							}
 						}else{
 							if(direction != LEFT) {
 								if(direction != LEFT_W_COLLISION) {
-									player_walk_left();
-									player_body.setLinearVelocity(new Vector2(-6, player_body.getLinearVelocity().y));
+									if(!carringBox)
+										player_body.setLinearVelocity(new Vector2(-6, player_body.getLinearVelocity().y));
+									else
+										player_body.setLinearVelocity(new Vector2(-3, player_body.getLinearVelocity().y));
 									direction = LEFT;
 								}
 							}
