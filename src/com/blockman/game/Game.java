@@ -5,30 +5,6 @@ import android.hardware.SensorManager;
 import android.util.Log;
 import android.widget.Toast;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import blockman.logic.Logic;
 
 import org.andengine.engine.camera.BoundCamera;
@@ -144,6 +120,7 @@ public class Game extends SimpleBaseGameActivity {
 	//Add Scene-----------------
 	private Scene scene;
 	private IOnSceneTouchListener tListener;
+	private HUD hud;
 	//--------------------------
 	//Buttons-------------------
 	private BitmapTextureAtlas go_back_bmp;
@@ -192,9 +169,17 @@ public class Game extends SimpleBaseGameActivity {
 	//Text------------------------
 	private Font title_font;
 	private Text title;
+	private Text winningMessage;
 	//--------------------------
 	//Logic---------------------
 	Logic gameLogic;
+	private float EXIT_X;
+	private float EXIT_Y;
+	//--------------------------
+
+	//--------------------------
+	//FLAGS
+	private int oneAnim = 0;
 	//--------------------------
 
 	@Override
@@ -252,9 +237,7 @@ public class Game extends SimpleBaseGameActivity {
 		this.rock_layer = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.rock_bmp, this, "img/rock.png", 0, 0);
 		this.rock_bmp.load();
 
-
-
-		this.title = new Text(PLAYER_START_X - 150, CAMERA_HEIGHT / 2 - 300, title_font, "LEVEL 1",getVertexBufferObjectManager());
+		this.title = new Text(CAMERA_WIDTH / 2, CAMERA_HEIGHT / 2 - 300, title_font, "LEVEL 1",getVertexBufferObjectManager());
 	}
 
 	@Override
@@ -262,6 +245,7 @@ public class Game extends SimpleBaseGameActivity {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
 		scene = new Scene();
+		
 		final AutoParallaxBackground autoParallaxBackground = new AutoParallaxBackground(0, 0, 0, 5);
 		vertexBufferObjectManager = this.getVertexBufferObjectManager();
 		autoParallaxBackground.attachParallaxEntity(new ParallaxBackground.ParallaxEntity(0f, new Sprite(0, CAMERA_HEIGHT - this.myLayerFront.getHeight(), this.myLayerFront, vertexBufferObjectManager)));
@@ -282,6 +266,9 @@ public class Game extends SimpleBaseGameActivity {
 		//------------------
 
 		generateMap();
+		
+		this.winningMessage = new Text(EXIT_X, EXIT_Y, title_font, "LEVEL 1 WON",getVertexBufferObjectManager());
+		
 		scene.attachChild(player);
 		scene.attachChild(title);
 
@@ -368,7 +355,7 @@ public class Game extends SimpleBaseGameActivity {
 		myChaseCamera.setChaseEntity(player);
 
 		//Botao em hud
-		HUD hud = new HUD();
+		hud = new HUD();
 		go_back =  new ButtonSprite(25, 25 , go_back_texture,  vertexBufferObjectManager){
 			@Override
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
@@ -383,15 +370,15 @@ public class Game extends SimpleBaseGameActivity {
 			hud.registerTouchArea(go_back);
 			go_back.setScale((float)0.8);
 
-			
+
 			jump_btn = new ButtonSprite(1050, 600, jump_btn_texture, vertexBufferObjectManager){
 				@Override
 				public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 						float pTouchAreaLocalX, float pTouchAreaLocalY) {
-					if(footContact == true)
-					if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
-						player_body.setLinearVelocity(new Vector2(player_body.getLinearVelocity().x, -26f));
-					}
+					if(footContact == true && win == false)
+						if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+							player_body.setLinearVelocity(new Vector2(player_body.getLinearVelocity().x, -26f));
+						}
 					return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
 				}};
 
@@ -464,12 +451,9 @@ public class Game extends SimpleBaseGameActivity {
 
 					myChaseCamera.setHUD(hud);
 
-
-
 					physicsWorld.setContactListener(createContactListener());
 
 					gameLogic = new Logic(map,physicsWorld);
-
 
 					return scene;
 	}
@@ -478,6 +462,10 @@ public class Game extends SimpleBaseGameActivity {
 	private void generateMap() {
 		map = new Map();
 		map.generateMap();
+		
+		EXIT_X = 300 + 100 * (map.getExitX() + 2);
+		EXIT_Y = CAMERA_HEIGHT / 2 - 300;
+		
 		for(int i = 0; i < map.getHeight(); i++){
 			for(int a = 0; a < map.getWidth(); a++){
 				if(map.getMap()[a][i].getKind() == "rock"){
@@ -579,7 +567,6 @@ public class Game extends SimpleBaseGameActivity {
 
 	}
 
-
 	private void initPhysics()
 	{
 		physicsWorld = new PhysicsWorld(new Vector2(0, 90f), false);
@@ -644,11 +631,16 @@ public class Game extends SimpleBaseGameActivity {
 
 				if(contact.getFixtureA().getUserData() == "body" && contact.getFixtureB().getUserData() == "exit"){
 					Log.d(TAG, "Reached exit");
-					player_body.setLinearVelocity(new Vector2(0, 0));
+					scene.attachChild(winningMessage);
+					//player_body.setLinearVelocity(new Vector2(0, 0));
+					jump_btn.setAlpha((float) 0.3);
 					win = true;
+
 				}else if(contact.getFixtureB().getUserData() == "body" && contact.getFixtureA().getUserData() == "exit"){
 					Log.d(TAG, "Reached exit");
-					player_body.setLinearVelocity(new Vector2(0, 0));
+					scene.attachChild(winningMessage);
+					//player_body.setLinearVelocity(new Vector2(0, 0));
+					jump_btn.setAlpha((float) 0.3);
 					win = true;
 				}
 
