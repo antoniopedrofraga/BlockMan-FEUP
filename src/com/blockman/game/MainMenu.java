@@ -62,8 +62,24 @@ public class MainMenu extends SimpleBaseGameActivity {
     private BitmapTextureAtlas myBackgroundTexture;
 
     private BitmapTextureAtlas level1;
-    private BitmapTextureAtlas quit_bmp;
     private ITextureRegion level1_texture;
+    
+    private BitmapTextureAtlas level2;
+    private ITextureRegion level2_texture;
+    
+    private BitmapTextureAtlas level3;
+    private ITextureRegion level3_texture;
+    
+    private BitmapTextureAtlas level4;
+    private ITextureRegion level4_texture;
+    
+    private BitmapTextureAtlas level5;
+    private ITextureRegion level5_texture;
+    
+    private BitmapTextureAtlas level6;
+    private ITextureRegion level6_texture;
+    
+    private BitmapTextureAtlas quit_bmp;
     private ITextureRegion quit_texture;
 
     private int tap = 0;
@@ -81,6 +97,12 @@ public class MainMenu extends SimpleBaseGameActivity {
     private Text pick_level;
 
     private ButtonSprite lv1;
+    private ButtonSprite lv2;
+    private ButtonSprite lv3;
+    private ButtonSprite lv4;
+    private ButtonSprite lv5;
+    private ButtonSprite lv6;
+    
     private ButtonSprite quit;
     
     private Scene scene;
@@ -144,6 +166,36 @@ public class MainMenu extends SimpleBaseGameActivity {
                     startActivity(game);
                     finish();
                 }
+                else if(pItem == lv2){
+                    Intent game = new Intent(getBaseContext(), Game.class);
+                    game.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    startActivity(game);
+                    finish();
+                }
+                else if(pItem == lv3){
+                    Intent game = new Intent(getBaseContext(), Game.class);
+                    game.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    startActivity(game);
+                    finish();
+                }
+                else if(pItem == lv4){
+                    Intent game = new Intent(getBaseContext(), Game.class);
+                    game.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    startActivity(game);
+                    finish();
+                }
+                else if(pItem == lv5){
+                    Intent game = new Intent(getBaseContext(), Game.class);
+                    game.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    startActivity(game);
+                    finish();
+                }
+                else if(pItem == lv6){
+                    Intent game = new Intent(getBaseContext(), Game.class);
+                    game.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                    startActivity(game);
+                    finish();
+                }
             }
         });
 
@@ -157,6 +209,61 @@ public class MainMenu extends SimpleBaseGameActivity {
                 }
                 return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
             }};
+            
+            lv2 =  new ButtonSprite(400, 200, level2_texture,  vertexBufferObjectManager)
+            {
+                @Override
+                public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+                                             float pTouchAreaLocalX, float pTouchAreaLocalY) {
+                    if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+                        lv2.registerEntityModifier(click);
+                    }
+                    return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+                }};
+                
+                lv3 =  new ButtonSprite(600, 200, level3_texture,  vertexBufferObjectManager)
+                {
+                    @Override
+                    public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+                                                 float pTouchAreaLocalX, float pTouchAreaLocalY) {
+                        if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+                            lv3.registerEntityModifier(click);
+                        }
+                        return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+                    }};
+                    
+                    lv4 =  new ButtonSprite(800, 200, level4_texture,  vertexBufferObjectManager)
+                    {
+                        @Override
+                        public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+                                                     float pTouchAreaLocalX, float pTouchAreaLocalY) {
+                            if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+                                lv4.registerEntityModifier(click);
+                            }
+                            return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+                        }};
+                        
+                        lv5 =  new ButtonSprite(200, 400, level5_texture,  vertexBufferObjectManager)
+                        {
+                            @Override
+                            public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+                                                         float pTouchAreaLocalX, float pTouchAreaLocalY) {
+                                if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+                                    lv5.registerEntityModifier(click);
+                                }
+                                return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+                            }};
+                            
+                            lv6 =  new ButtonSprite(400, 400, level6_texture,  vertexBufferObjectManager)
+                            {
+                                @Override
+                                public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+                                                             float pTouchAreaLocalX, float pTouchAreaLocalY) {
+                                    if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+                                        lv6.registerEntityModifier(click);
+                                    }
+                                    return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+                                }};
 
 
         quit =  new ButtonSprite(CAMERA_WIDTH - 200, CAMERA_HEIGHT - 200 , quit_texture,  vertexBufferObjectManager)
@@ -190,9 +297,19 @@ public class MainMenu extends SimpleBaseGameActivity {
                         	scene.detachChild(title);
                         	scene.attachChild(pick_level);
                         	scene.attachChild(lv1);
+                        	scene.attachChild(lv2);
+                        	scene.attachChild(lv3);
+                        	scene.attachChild(lv4);
+                        	scene.attachChild(lv5);
+                        	scene.attachChild(lv6);
                         	scene.attachChild(quit);
                         	scene.registerTouchArea(quit);
                         	scene.registerTouchArea(lv1);
+                        	scene.registerTouchArea(lv2);
+                        	scene.registerTouchArea(lv3);
+                        	scene.registerTouchArea(lv4);
+                        	scene.registerTouchArea(lv5);
+                        	scene.registerTouchArea(lv6);
                         }
                     }
                     tap++;
@@ -214,9 +331,19 @@ public class MainMenu extends SimpleBaseGameActivity {
             	Log.d("BlockMan", "retrieves 'back', going to pick level scene");
             	scene.attachChild(pick_level);
             	scene.attachChild(lv1);
+            	scene.attachChild(lv2);
+            	scene.attachChild(lv3);
+            	scene.attachChild(lv4);
+            	scene.attachChild(lv5);
+            	scene.attachChild(lv6);
             	scene.attachChild(quit);
             	scene.registerTouchArea(quit);
             	scene.registerTouchArea(lv1);
+            	scene.registerTouchArea(lv2);
+            	scene.registerTouchArea(lv3);
+            	scene.registerTouchArea(lv4);
+            	scene.registerTouchArea(lv5);
+            	scene.registerTouchArea(lv6);
             	tap++;
             }
         }else{
@@ -247,7 +374,27 @@ public class MainMenu extends SimpleBaseGameActivity {
         this.level1 = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
         this.level1_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.level1, this, "level1.png", 0, 0);
         this.level1.load();
-
+        
+        this.level2 = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
+        this.level2_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.level2, this, "level2.png", 0, 0);
+        this.level2.load();
+        
+        this.level3 = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
+        this.level3_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.level3, this, "level3.png", 0, 0);
+        this.level3.load();
+        
+        this.level4 = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
+        this.level4_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.level4, this, "level4.png", 0, 0);
+        this.level4.load();
+        
+        this.level5 = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
+        this.level5_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.level5, this, "level5.png", 0, 0);
+        this.level5.load();
+        
+        this.level6 = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
+        this.level6_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.level6, this, "level6.png", 0, 0);
+        this.level6.load();
+        
         this.quit_bmp = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
         this.quit_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.quit_bmp, this, "quit.png", 0, 0);
         this.quit_bmp.load();

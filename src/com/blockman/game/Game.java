@@ -295,7 +295,7 @@ public class Game extends SimpleBaseGameActivity {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
 		scene = new Scene();
-		musicPlayer.play();
+		//musicPlayer.play();
 
 		final AutoParallaxBackground autoParallaxBackground = new AutoParallaxBackground(0, 0, 0, 5);
 		vertexBufferObjectManager = this.getVertexBufferObjectManager();
@@ -305,12 +305,12 @@ public class Game extends SimpleBaseGameActivity {
 
 		back = new Sprite(0, CAMERA_HEIGHT - this.myLayerFront.getHeight(), this.myLayerFront, vertexBufferObjectManager);
 		scene.attachChild(back);
-
+		
 		player = new AnimatedSprite(PLAYER_START_X, PLAYER_START_Y , this.mPlayerTextureRegion, vertexBufferObjectManager);
 		player.setScaleCenterY(this.mPlayerTextureRegion.getHeight() - 80);
 		player.setScale((float)0.7);
 		player_stop();
-
+		
 		//---------------------
 		//add physics
 		initPhysics();
@@ -447,21 +447,17 @@ public class Game extends SimpleBaseGameActivity {
 							if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
 								if (musicPlayer.isPlaying())
 								{
-									
 									Log.d(TAG, "Pause Music");
 									play_btn.setAlpha((float) 0.1);
 									//play_btn_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.play_btn_bmp, this, "stop.png", 0, 0);
 									musicPlayer.pause();
-									
 								}
 								else
 								{
-									
 									Log.d(TAG, "Play Music");
 									play_btn.setAlpha(1);
 									//play_btn_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.play_btn_bmp, this, "play.png", 0, 0);
 									musicPlayer.resume();
-									
 								}
 							}
 						return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
@@ -564,7 +560,7 @@ public class Game extends SimpleBaseGameActivity {
 
 	private void generateMap() {
 		map = new Map();
-		map.generateMap();
+		map.generateLevel3();
 
 		EXIT_X = 200;
 		EXIT_Y = CAMERA_HEIGHT / 2 - 300;

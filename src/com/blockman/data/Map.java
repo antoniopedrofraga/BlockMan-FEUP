@@ -91,45 +91,91 @@ public class Map {
 
 	public void generateLevel2(){
 
-		width = 23;
+		width = 20;
 		height = 9;
 		map = new Box[width][height];
 		sprites = new ArrayList<Position>();
-
+		
 		for(int i = 0; i < height; i++){
 			for(int a = 0; a < width; a++){
 				map[a][i] = new Box("blank", a, i, null);
 			}
 		}
-		for(int i = 0; i < 3; i++){
-			for(int a = 1; a < 6; a++){
-				map[a][i] = new Box("rock", 6, 0, null);
-			}
-		}
 		
-		map[1][3] = new Box("rock", 6, 0, null);
-		map[1][4] = new Box("rock", 6, 0, null);
-		map[1][5] = new Box("rock", 6, 0, null);
-		for(int i = 9; i < width - 1; i++){
-			for(int a = 0; a < 3; a++){
-				map[i][a] = new Box("rock", 6, 0, null);
-			}
-		}
-		map[8][0] = new Box("box", 6, 0, null);
-		map[14][3] = new Box("rock", 6, 0, null);
-		map[14][4] = new Box("rock", 6, 0, null);
+		map[5][0] = new Box("box", 6, 0, null);
+		map[8][0] = new Box("rock", 6, 0, null);
+		map[8][1] = new Box("rock", 6, 0, null);
+		map[9][0] = new Box("box", 6, 0, null);
+		map[11][0] = new Box("box", 6, 0, null);
+		map[11][1] = new Box("box", 6, 0, null);
+		map[12][0] = new Box("box", 6, 0, null);
 		
-		exit_x = 0;
-		exit_y = 2;
-		
-		map[1][6] = new Box("exit", 1, 0, null);
+		exit_x = 1;
+		exit_y = 3;
+		map[1][1] = new Box("rock", 6, 0, null);
+		map[1][0] = new Box("rock", 6, 0, null);
+		map[1][2] = new Box("rock", 6, 0, null);
+		map[1][3] = new Box("exit", 1, 0, null);
 		
 		for(int i = 0; i < height; i++){
 			map[0][i] = new Box("rock",0,i, null);
 			map[width - 1][i] = new Box("rock", width - 1, i, null);
 		}
 	}
+	
+	public void generateLevel3(){
 
+		width = 20;
+		height = 9;
+		map = new Box[width][height];
+		sprites = new ArrayList<Position>();
+		
+		for(int i = 0; i < height; i++){
+			for(int a = 0; a < width; a++){
+				map[a][i] = new Box("blank", a, i, null);
+			}
+		}
+		
+		map[2][0] = new Box("rock", 6, 0, null);
+		map[2][1] = new Box("rock", 6, 0, null);
+		map[2][2] = new Box("rock", 6, 0, null);
+		map[2][3] = new Box("rock", 6, 0, null);
+		
+		map[3][0] = new Box("rock", 6, 0, null);
+		map[3][1] = new Box("rock", 6, 0, null);
+		map[3][2] = new Box("rock", 6, 0, null);
+		map[3][3] = new Box("rock", 6, 0, null);
+		
+		map[4][0] = new Box("rock", 6, 0, null);
+		map[4][1] = new Box("rock", 6, 0, null);
+		map[4][2] = new Box("rock", 6, 0, null);
+		map[4][3] = new Box("rock", 6, 0, null);
+		
+		map[15][0] = new Box("box", 6, 0, null);
+		map[14][0] = new Box("box", 6, 0, null);
+		map[13][0] = new Box("box", 6, 0, null);
+		
+		map[12][0] = new Box("rock", 6, 0, null);
+		map[12][1] = new Box("rock", 6, 0, null);
+		map[12][2] = new Box("rock", 6, 0, null);
+		
+		map[10][0] = new Box("box", 6, 0, null);
+		map[9][0] = new Box("box", 6, 0, null);
+		map[9][1] = new Box("box", 6, 0, null);
+		map[8][0] = new Box("box", 6, 0, null);
+		map[8][1] = new Box("box", 6, 0, null);
+		
+		exit_x = 1;
+		exit_y = 0;
+		
+		map[1][0] = new Box("exit", 1, 0, null);
+		
+		for(int i = 0; i < height; i++){
+			map[0][i] = new Box("rock",0,i, null);
+			map[width - 1][i] = new Box("rock", width - 1, i, null);
+		}
+	}
+	
 
 	public void generateTutorial(){
 		width = 18;
