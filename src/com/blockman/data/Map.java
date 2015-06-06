@@ -164,6 +164,7 @@ public class Map {
 		map[9][1] = new Box("box", 6, 0, null);
 		map[8][0] = new Box("box", 6, 0, null);
 		map[8][1] = new Box("box", 6, 0, null);
+		map[8][2] = new Box("box", 6, 0, null);
 		
 		exit_x = 1;
 		exit_y = 0;
