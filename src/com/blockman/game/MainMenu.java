@@ -1,5 +1,7 @@
 package com.blockman.game;
 
+import java.io.IOException;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,6 +14,8 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.widget.Toast;
 
+import org.andengine.audio.music.Music;
+import org.andengine.audio.music.MusicFactory;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
@@ -105,12 +109,23 @@ public class MainMenu extends SimpleBaseGameActivity {
     
     private ButtonSprite quit;
     
+    //--------
+  	//MUSIC
+  	private Music musicPlayer;
+  	private BitmapTextureAtlas play_btn_bmp;
+	private ITextureRegion play_btn_texture;
+	private ButtonSprite play_btn;
+  	//--------
+    
     private Scene scene;
 
     @Override
     public EngineOptions onCreateEngineOptions() {
         final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-        return new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new FillResolutionPolicy(), camera);
+        EngineOptions options = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new FillResolutionPolicy(), camera);
+		options.getAudioOptions().setNeedsMusic(true);
+		options.getAudioOptions().setNeedsSound(true);
+        return options;
     }
 
     @Override
@@ -142,6 +157,36 @@ public class MainMenu extends SimpleBaseGameActivity {
         player.setScale((float)0.7);
 
         scene.attachChild(player);
+        
+        play_btn = new ButtonSprite(1050, 50, play_btn_texture, vertexBufferObjectManager){
+			@Override
+			public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+					float pTouchAreaLocalX, float pTouchAreaLocalY) {
+					if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+						if (musicPlayer.isPlaying())
+						{
+							play_btn.setAlpha((float) 0.3);
+							SharedPreferences settings = getSharedPreferences("data", 0);
+							SharedPreferences.Editor editor = settings.edit();
+							editor.putBoolean("sound", false);
+							editor.commit();
+
+							//play_btn_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.play_btn_bmp, this, "stop.png", 0, 0);
+							musicPlayer.pause();
+						}
+						else
+						{
+							play_btn.setAlpha(1);
+							SharedPreferences settings = getSharedPreferences("data", 0);
+							SharedPreferences.Editor editor = settings.edit();
+							editor.putBoolean("sound", true);
+							editor.commit();
+							//play_btn_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.play_btn_bmp, this, "play.png", 0, 0);
+							musicPlayer.resume();
+						}
+					}
+				return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+			}};
 
         //quit animation
 
@@ -157,6 +202,9 @@ public class MainMenu extends SimpleBaseGameActivity {
             protected void onModifierFinished(IEntity pItem)
             {
                 super.onModifierFinished(pItem);
+                SharedPreferences settings = getSharedPreferences("data", 0);
+                int level = settings.getInt("currLevel", -1);
+                
                 if(pItem == quit) {
                     finish();
                     System.exit(1);
@@ -168,6 +216,9 @@ public class MainMenu extends SimpleBaseGameActivity {
                     finish();
                 }
                 else if(pItem == lv2){
+                	if(level < 2){
+                		return;
+                	}
                     Intent game = new Intent(getBaseContext(), Game.class);
                     game.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NO_ANIMATION);
                     game.putExtra("level", "2");
@@ -205,71 +256,71 @@ public class MainMenu extends SimpleBaseGameActivity {
             }
         });
 
-        lv1 =  new ButtonSprite(200, 200, level1_texture,  vertexBufferObjectManager)
+        lv1 =  new ButtonSprite(200, 300, level1_texture,  vertexBufferObjectManager)
         {
-            @Override
-            public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
-                                         float pTouchAreaLocalX, float pTouchAreaLocalY) {
-                if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
-                    lv1.registerEntityModifier(click);
-                }
-                return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
-            }};
-            
-            lv2 =  new ButtonSprite(400, 200, level2_texture,  vertexBufferObjectManager)
-            {
-                @Override
-                public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
-                                             float pTouchAreaLocalX, float pTouchAreaLocalY) {
-                    if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
-                        lv2.registerEntityModifier(click);
-                    }
-                    return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
-                }};
-                
-                lv3 =  new ButtonSprite(600, 200, level3_texture,  vertexBufferObjectManager)
-                {
-                    @Override
-                    public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
-                                                 float pTouchAreaLocalX, float pTouchAreaLocalY) {
-                        if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
-                            lv3.registerEntityModifier(click);
-                        }
-                        return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
-                    }};
-                    
-                    lv4 =  new ButtonSprite(800, 200, level4_texture,  vertexBufferObjectManager)
-                    {
-                        @Override
-                        public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
-                                                     float pTouchAreaLocalX, float pTouchAreaLocalY) {
-                            if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
-                                lv4.registerEntityModifier(click);
-                            }
-                            return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
-                        }};
-                        
-                        lv5 =  new ButtonSprite(200, 400, level5_texture,  vertexBufferObjectManager)
-                        {
-                            @Override
-                            public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
-                                                         float pTouchAreaLocalX, float pTouchAreaLocalY) {
-                                if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
-                                    lv5.registerEntityModifier(click);
-                                }
-                                return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
-                            }};
-                            
-                            lv6 =  new ButtonSprite(400, 400, level6_texture,  vertexBufferObjectManager)
-                            {
-                                @Override
-                                public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
-                                                             float pTouchAreaLocalX, float pTouchAreaLocalY) {
-                                    if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
-                                        lv6.registerEntityModifier(click);
-                                    }
-                                    return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
-                                }};
+        	@Override
+        	public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+        			float pTouchAreaLocalX, float pTouchAreaLocalY) {
+        		if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+        			lv1.registerEntityModifier(click);
+        		}
+        		return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+        	}};
+
+        	lv2 =  new ButtonSprite(400, 300, level2_texture,  vertexBufferObjectManager)
+        	{
+        		@Override
+        		public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+        				float pTouchAreaLocalX, float pTouchAreaLocalY) {
+        			if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+        				lv2.registerEntityModifier(click);
+        			}
+        			return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+        		}};
+
+        		lv3 =  new ButtonSprite(600, 300, level3_texture,  vertexBufferObjectManager)
+        		{
+        			@Override
+        			public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+        					float pTouchAreaLocalX, float pTouchAreaLocalY) {
+        				if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+        					lv3.registerEntityModifier(click);
+        				}
+        				return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+        			}};
+
+        			lv4 =  new ButtonSprite(800, 300, level4_texture,  vertexBufferObjectManager)
+        			{
+        				@Override
+        				public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+        						float pTouchAreaLocalX, float pTouchAreaLocalY) {
+        					if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+        						lv4.registerEntityModifier(click);
+        					}
+        					return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+        				}};
+
+        				lv5 =  new ButtonSprite(1000, 300, level5_texture,  vertexBufferObjectManager)
+        				{
+        					@Override
+        					public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+        							float pTouchAreaLocalX, float pTouchAreaLocalY) {
+        						if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+        							lv5.registerEntityModifier(click);
+        						}
+        						return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+        					}};
+
+        					lv6 =  new ButtonSprite(400, 400, level6_texture,  vertexBufferObjectManager)
+        					{
+        						@Override
+        						public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+        								float pTouchAreaLocalX, float pTouchAreaLocalY) {
+        							if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+        								lv6.registerEntityModifier(click);
+        							}
+        							return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+        						}};
 
 
         quit =  new ButtonSprite(CAMERA_WIDTH - 200, CAMERA_HEIGHT - 200 , quit_texture,  vertexBufferObjectManager)
@@ -284,7 +335,6 @@ public class MainMenu extends SimpleBaseGameActivity {
         }};
 
         quit.setScale((float)0.8);
-        lv1.setScale((float)0.8);
          scene.setOnSceneTouchListener(new IOnSceneTouchListener() {
             @Override
             public boolean onSceneTouchEvent(Scene pScene, final TouchEvent pSceneTouchEvent) {
@@ -301,21 +351,7 @@ public class MainMenu extends SimpleBaseGameActivity {
                         }else{
                         	scene.detachChild(txt);
                         	scene.detachChild(title);
-                        	scene.attachChild(pick_level);
-                        	scene.attachChild(lv1);
-                        	scene.attachChild(lv2);
-                        	scene.attachChild(lv3);
-                        	scene.attachChild(lv4);
-                        	scene.attachChild(lv5);
-                        	//scene.attachChild(lv6);
-                        	scene.attachChild(quit);
-                        	scene.registerTouchArea(quit);
-                        	scene.registerTouchArea(lv1);
-                        	scene.registerTouchArea(lv2);
-                        	scene.registerTouchArea(lv3);
-                        	scene.registerTouchArea(lv4);
-                        	scene.registerTouchArea(lv5);
-                        	//scene.registerTouchArea(lv6);
+                        	attach_levels();
                         }
                     }
                     tap++;
@@ -335,21 +371,7 @@ public class MainMenu extends SimpleBaseGameActivity {
                 scene.attachChild(title);
             }else if(data.equals("back")){
             	Log.d("BlockMan", "retrieves 'back', going to pick level scene");
-            	scene.attachChild(pick_level);
-            	scene.attachChild(lv1);
-            	scene.attachChild(lv2);
-            	scene.attachChild(lv3);
-            	scene.attachChild(lv4);
-            	scene.attachChild(lv5);
-            	//scene.attachChild(lv6);
-            	scene.attachChild(quit);
-            	scene.registerTouchArea(quit);
-            	scene.registerTouchArea(lv1);
-            	scene.registerTouchArea(lv2);
-            	scene.registerTouchArea(lv3);
-            	scene.registerTouchArea(lv4);
-            	scene.registerTouchArea(lv5);
-            	//scene.registerTouchArea(lv6);
+            	attach_levels();
             	tap++;
             }
         }else{
@@ -364,6 +386,8 @@ public class MainMenu extends SimpleBaseGameActivity {
 
 	@Override
     public void onCreateResources() {
+
+		
         //Background
         this.myBackgroundTexture = new BitmapTextureAtlas(this.getTextureManager(), 3000, 1500);
         this.myLayerFront = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.myBackgroundTexture, this, "background.jpg", 0, 0);
@@ -372,7 +396,7 @@ public class MainMenu extends SimpleBaseGameActivity {
         Log.d("BlockMan", "Starting to load player");
         long current_time = System.currentTimeMillis();
         this.mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 2048, 4000, TextureOptions.BILINEAR);
-        this.mPlayerTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "mustache_man_2.png", 0, 0, 16, 31);
+        this.mPlayerTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "mustache_man_3.png", 0, 0, 16, 31);
         this.mBitmapTextureAtlas.load();
         
         Log.d("BlockMan", "Player loaded, it tooked " +  (System.currentTimeMillis() - current_time) + " ms");
@@ -404,6 +428,10 @@ public class MainMenu extends SimpleBaseGameActivity {
         this.quit_bmp = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
         this.quit_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.quit_bmp, this, "quit.png", 0, 0);
         this.quit_bmp.load();
+        
+		this.play_btn_bmp = new BitmapTextureAtlas(this.getTextureManager(), 144, 144, TextureOptions.BILINEAR);
+		this.play_btn_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.play_btn_bmp, this, "play.png", 0, 0);
+		this.play_btn_bmp.load();
 
         myFont = FontFactory.createFromAsset(mEngine.getFontManager(),
                 mEngine.getTextureManager(), 256, 256, TextureOptions.BILINEAR,
@@ -422,14 +450,60 @@ public class MainMenu extends SimpleBaseGameActivity {
                 this.getAssets(), "fonts/3Dumb.ttf", 75f, true,
                 Color.BLACK_ABGR_PACKED_INT);
         level_font.load();
-
+        
+        
+        try {
+			this.musicPlayer = MusicFactory.createMusicFromAsset(mEngine.getMusicManager(), this,"music.mp3");
+			this.musicPlayer.setLooping(true);
+			Log.d("BlockMan", "Leu musica");
+		} catch (IllegalStateException e) {
+			Log.d("BlockMan", "Erro a ler musica");
+			e.printStackTrace();
+		} catch (IOException e) {
+			Log.d("BlockMan", "Erro a ler musica");
+			e.printStackTrace();
+		}	
+        
         this.txt = new Text(CAMERA_WIDTH / 2 - 160, CAMERA_HEIGHT / 2, myFont, "Tap to play",getVertexBufferObjectManager());
         this.title = new Text(CAMERA_WIDTH / 2 - 270, CAMERA_HEIGHT / 4, title_font, "BLOCK MAN",getVertexBufferObjectManager());
         this.pick_level = new Text(CAMERA_WIDTH / 2 - 245, CAMERA_HEIGHT / 4 - 130, level_font, "PICK A LEVEL",getVertexBufferObjectManager());
     }
 
 
+	void attach_levels(){
+		SharedPreferences settings = getSharedPreferences("data", 0);
+        int level = settings.getInt("currLevel", -1);
+        
+        scene.attachChild(play_btn);
+		scene.registerTouchArea(play_btn);
+        boolean sound = settings.getBoolean("sound", true);
+        if(sound){
+        	musicPlayer.play();
+        	play_btn.setAlpha(1f);
+        }else{
+        	play_btn.setAlpha(0.4f);
+        }
+
+    	scene.attachChild(pick_level);
+    	scene.attachChild(lv1);
+    	scene.attachChild(lv2);
+    	scene.attachChild(lv3);
+    	scene.attachChild(lv4);
+    	scene.attachChild(lv5);
+    	//scene.attachChild(lv6);
+    	scene.attachChild(quit);
+    	scene.registerTouchArea(quit);
+    	scene.registerTouchArea(lv1);
+    	scene.registerTouchArea(lv2);
+    	if(level < 2) lv2.setAlpha(0.4f);
+    	scene.registerTouchArea(lv3);
+    	if(level < 3) lv3.setAlpha(0.4f);
+    	scene.registerTouchArea(lv4);
+    	if(level < 4) lv4.setAlpha(0.4f);
+    	scene.registerTouchArea(lv5);
+    	if(level < 5) lv5.setAlpha(0.4f);
+    	//scene.registerTouchArea(lv6);
+	}
+
 
 }
-
-

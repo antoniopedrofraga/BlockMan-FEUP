@@ -343,7 +343,7 @@ public class Map {
 		return exit_y;
 	}
 	public int getLowerY(int x, int y) {
-		for(int i = y ; i > 0; i-- ){
+		for(int i = y ; i >= 0; i-- ){
 			if(map[x][i].getKind() == "rock" || map[x][i].getKind() == "box"){
 				return i + 1;
 			}

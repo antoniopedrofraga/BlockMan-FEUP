@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -122,7 +123,7 @@ public class Game extends SimpleBaseGameActivity {
 
 	private Body box_body;
 
-	private boolean footContact = false; //how many footcontact there is
+	private int footContact = 0; //how many footcontact there is
 
 	//--------------------------
 	//Add Scene-----------------
@@ -202,6 +203,7 @@ public class Game extends SimpleBaseGameActivity {
 	//--------------------------
 	//FLAGS
 	private int oneAnim = 0;
+	private int curr_level;
 	//--------------------------
 
 	@Override
@@ -223,7 +225,7 @@ public class Game extends SimpleBaseGameActivity {
 	protected void onCreateResources() {
 
 		try {
-			this.musicPlayer = MusicFactory.createMusicFromAsset(mEngine.getMusicManager(), this,"Pokemon.mp3");
+			this.musicPlayer = MusicFactory.createMusicFromAsset(mEngine.getMusicManager(), this,"music.mp3");
 			this.musicPlayer.setLooping(true);
 			Log.d(TAG, "Leu musica");
 		} catch (IllegalStateException e) {
@@ -287,7 +289,7 @@ public class Game extends SimpleBaseGameActivity {
 		this.rock_layer = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.rock_bmp, this, "img/rock.png", 0, 0);
 		this.rock_bmp.load();
 
-		this.title = new Text(PLAYER_START_X - 190, CAMERA_HEIGHT / 2 - 300, title_font, "LEVEL 1",getVertexBufferObjectManager());
+		this.title = new Text(PLAYER_START_X - 190, CAMERA_HEIGHT / 2 - 300, title_font, "LEVEL ",getVertexBufferObjectManager());
 
 	}
 
@@ -296,7 +298,6 @@ public class Game extends SimpleBaseGameActivity {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
 		scene = new Scene();
-		//musicPlayer.play();
 
 		final AutoParallaxBackground autoParallaxBackground = new AutoParallaxBackground(0, 0, 0, 5);
 		vertexBufferObjectManager = this.getVertexBufferObjectManager();
@@ -449,7 +450,12 @@ public class Game extends SimpleBaseGameActivity {
 								if (musicPlayer.isPlaying())
 								{
 									Log.d(TAG, "Pause Music");
-									play_btn.setAlpha((float) 0.1);
+									play_btn.setAlpha((float) 0.3);
+									SharedPreferences settings = getSharedPreferences("data", 0);
+									SharedPreferences.Editor editor = settings.edit();
+									editor.putBoolean("sound", false);
+									editor.commit();
+
 									//play_btn_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.play_btn_bmp, this, "stop.png", 0, 0);
 									musicPlayer.pause();
 								}
@@ -457,6 +463,10 @@ public class Game extends SimpleBaseGameActivity {
 								{
 									Log.d(TAG, "Play Music");
 									play_btn.setAlpha(1);
+									SharedPreferences settings = getSharedPreferences("data", 0);
+									SharedPreferences.Editor editor = settings.edit();
+									editor.putBoolean("sound", true);
+									editor.commit();
 									//play_btn_texture = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.play_btn_bmp, this, "play.png", 0, 0);
 									musicPlayer.resume();
 								}
@@ -474,7 +484,7 @@ public class Game extends SimpleBaseGameActivity {
 						@Override
 						public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 								float pTouchAreaLocalX, float pTouchAreaLocalY) {
-							if(footContact == true && win == false)
+							if(footContact > 0 && win == false)
 								if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
 									player_body.setLinearVelocity(new Vector2(player_body.getLinearVelocity().x, -26f));
 								}
@@ -554,6 +564,15 @@ public class Game extends SimpleBaseGameActivity {
 							physicsWorld.setContactListener(createContactListener());
 
 							gameLogic = new Logic(map,physicsWorld);
+							
+							SharedPreferences settings = getSharedPreferences("data", 0);
+					        boolean sound = settings.getBoolean("sound", true);
+					        if(sound){
+					        	musicPlayer.play();
+					        	play_btn.setAlpha(1f);
+					        }else{
+					        	play_btn.setAlpha(0.4f);
+					        }
 
 							return scene;
 	}
@@ -565,6 +584,8 @@ public class Game extends SimpleBaseGameActivity {
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			String data = (String)extras.getString("level");
+			title.setText(title.getText() + data);
+			curr_level = Integer.parseInt(data);
 			if (data.equals("1"))
 				map.generateMap();
 			else if (data.equals("2"))
@@ -735,7 +756,7 @@ public class Game extends SimpleBaseGameActivity {
 			{
 				Log.d(TAG, "Contact A: " + contact.getFixtureA().getUserData() + ", Contact B: " + contact.getFixtureB().getUserData());
 				if(contact.getFixtureB().getUserData() == "feet" || contact.getFixtureA().getUserData() == "feet"){
-					footContact = true;
+					footContact++;
 				}
 
 				if(!carringBox){
@@ -759,7 +780,9 @@ public class Game extends SimpleBaseGameActivity {
 					//player_body.setLinearVelocity(new Vector2(0, 0));
 					jump_btn.setAlpha((float) 0.3);
 					win = true;
-
+					
+					Game.this.toastOnUIThread("Hit 'back' if you want to pick another level",
+							Toast.LENGTH_SHORT);
 				}else if(contact.getFixtureB().getUserData() == "body" && contact.getFixtureA().getUserData() == "exit"){
 					Log.d(TAG, "Reached exit");
 					hud.attachChild(winningMessage);
@@ -773,6 +796,8 @@ public class Game extends SimpleBaseGameActivity {
 					//player_body.setLinearVelocity(new Vector2(0, 0));
 					jump_btn.setAlpha((float) 0.3);
 					win = true;
+					Game.this.toastOnUIThread("Hit 'back' if you want to pick another level",
+							Toast.LENGTH_SHORT);
 				}
 
 			}
@@ -781,7 +806,7 @@ public class Game extends SimpleBaseGameActivity {
 			public void endContact(Contact contact)
 			{
 				if(contact.getFixtureB().getUserData() == "feet" || contact.getFixtureA().getUserData() == "feet"){
-					footContact = false;
+					footContact--;
 				}
 				if(!carringBox){
 					if(contact.getFixtureA().getUserData() == "box sensor" && contact.getFixtureB().getUserData() == "box body"){
@@ -823,6 +848,16 @@ public class Game extends SimpleBaseGameActivity {
 		{		
 			super.onModifierFinished(pItem);
 			if(pItem == go_back){
+				if(win){
+					SharedPreferences settings = getSharedPreferences("data", 0);
+					int level = settings.getInt("currLevel", -1);
+
+					if(level != -1){
+						SharedPreferences.Editor editor = settings.edit();
+						editor.putInt("currLevel", curr_level + 1);
+						editor.commit();
+					}
+				}
 				Intent back = new Intent(getBaseContext(), MainMenu.class);
 				back.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_ANIMATION);
 				back.putExtra("isBack", "back");
