@@ -23,6 +23,9 @@ public class Logic {
 	private Map map;
 	private PhysicsWorld physicsWorld;
 	
+	private boolean carringBox = false;
+	private boolean win = false;
+	
 	public Logic(Map map,PhysicsWorld physicsWorld){
 		this.map = map;
 		this.physicsWorld = physicsWorld;
@@ -134,5 +137,20 @@ public class Logic {
 					}
 			}
 		return false;
+	}
+	
+	public boolean getWin(){
+		return win;
+	}
+	public void setWin(boolean a){
+		win = a;
+	}
+	
+	public boolean getCarringBox(){
+		return carringBox;
+	}
+	
+	public void setCarringBox(boolean a){
+		carringBox = a;
 	}
 }

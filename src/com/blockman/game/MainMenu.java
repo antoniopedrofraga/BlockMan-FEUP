@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -453,6 +454,9 @@ public class MainMenu extends SimpleBaseGameActivity {
         
         
         try {
+        	if(musicPlayer != null){
+        		musicPlayer.release();
+        	}
 			this.musicPlayer = MusicFactory.createMusicFromAsset(mEngine.getMusicManager(), this,"music.mp3");
 			this.musicPlayer.setLooping(true);
 			Log.d("BlockMan", "Leu musica");
@@ -474,11 +478,13 @@ public class MainMenu extends SimpleBaseGameActivity {
 		SharedPreferences settings = getSharedPreferences("data", 0);
         int level = settings.getInt("currLevel", -1);
         
+        
         scene.attachChild(play_btn);
 		scene.registerTouchArea(play_btn);
         boolean sound = settings.getBoolean("sound", true);
         if(sound){
         	musicPlayer.play();
+        	musicPlayer.resume();
         	play_btn.setAlpha(1f);
         }else{
         	play_btn.setAlpha(0.4f);

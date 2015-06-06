@@ -99,12 +99,6 @@ public class Game extends SimpleBaseGameActivity {
 
 	final boolean PHYSICS_VISIBILITY = false;
 
-	//----------------------------------
-	//Game Variables---------------------
-	private boolean carringBox = false;
-	private boolean win = false;
-	//------------------------------
-	//---------------------------
 	private VertexBufferObjectManager vertexBufferObjectManager;
 	private Sprite back;
 	//--------------------------
@@ -114,13 +108,9 @@ public class Game extends SimpleBaseGameActivity {
 	//--------------------------
 	//Physics-------------------
 	private PhysicsWorld physicsWorld;
-
 	private PhysicsHandler playerPhysics;
-
 	private Body player_body;
-
 	private Body sensor_body;
-
 	private Body box_body;
 
 	private int footContact = 0; //how many footcontact there is
@@ -193,7 +183,7 @@ public class Game extends SimpleBaseGameActivity {
 	private Text title;
 	private Text winningMessage;
 	//--------------------------
-	//Logic---------------------
+	//gameLogic.getgameLogic.getWin()()---------------------
 	Logic gameLogic;
 	private float EXIT_X;
 	private float EXIT_Y;
@@ -224,6 +214,9 @@ public class Game extends SimpleBaseGameActivity {
 	protected void onCreateResources() {
 
 		try {
+			if(musicPlayer != null){
+        		musicPlayer.release();
+        	}
 			this.musicPlayer = MusicFactory.createMusicFromAsset(mEngine.getMusicManager(), this,"music.mp3");
 			this.musicPlayer.setLooping(true);
 			Log.d(TAG, "Leu musica");
@@ -327,12 +320,12 @@ public class Game extends SimpleBaseGameActivity {
 			public boolean onSceneTouchEvent(Scene pScene, final TouchEvent pSceneTouchEvent) {
 				if (pSceneTouchEvent.isActionDown()) {
 					tap_time = System.currentTimeMillis();
-					if(!win)
+					if(!gameLogic.getWin())
 						if(pSceneTouchEvent.getX() > player.getX()) {
 							if(direction != RIGHT) {
 								if(direction != RIGHT_W_COLLISION) {
 									player_walk_right();
-									if(!carringBox)
+									if(!gameLogic.getCarringBox())
 										player_body.setLinearVelocity(new Vector2(6, player_body.getLinearVelocity().y));
 									else
 										player_body.setLinearVelocity(new Vector2(3, player_body.getLinearVelocity().y));
@@ -343,7 +336,7 @@ public class Game extends SimpleBaseGameActivity {
 							if(direction != LEFT) {
 								if(direction != LEFT_W_COLLISION) {
 									player_walk_left();
-									if(!carringBox)
+									if(!gameLogic.getCarringBox())
 										player_body.setLinearVelocity(new Vector2(-6, player_body.getLinearVelocity().y));
 									else
 										player_body.setLinearVelocity(new Vector2(-3, player_body.getLinearVelocity().y));
@@ -355,27 +348,17 @@ public class Game extends SimpleBaseGameActivity {
 				}
 
 				if (pSceneTouchEvent.isActionMove()) {
-					if(!win)
+					if(!gameLogic.getWin())
 						if(pSceneTouchEvent.getX() > player.getX()) {
 							if(direction != RIGHT) {
 								if(direction != RIGHT_W_COLLISION) {
 									player_walk_right();
-									if(!carringBox)
-										player_body.setLinearVelocity(new Vector2(6, player_body.getLinearVelocity().y));
-									else
-										player_body.setLinearVelocity(new Vector2(3, player_body.getLinearVelocity().y));
-									direction = RIGHT;
 								}
 							}
 						}else{
 							if(direction != LEFT) {
 								if(direction != LEFT_W_COLLISION) {
 									player_walk_left();
-									if(!carringBox)
-										player_body.setLinearVelocity(new Vector2(-6, player_body.getLinearVelocity().y));
-									else
-										player_body.setLinearVelocity(new Vector2(-3, player_body.getLinearVelocity().y));
-									direction = LEFT;
 								}
 							}
 						}
@@ -438,7 +421,7 @@ public class Game extends SimpleBaseGameActivity {
 					@Override
 					public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 							float pTouchAreaLocalX, float pTouchAreaLocalY) {
-						if(win == false)
+						if(gameLogic.getWin() == false)
 							if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
 								if (musicPlayer.isPlaying())
 								{
@@ -477,7 +460,7 @@ public class Game extends SimpleBaseGameActivity {
 						@Override
 						public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 								float pTouchAreaLocalX, float pTouchAreaLocalY) {
-							if(footContact > 0 && win == false)
+							if(footContact > 0 && gameLogic.getWin() == false)
 								if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
 									player_body.setLinearVelocity(new Vector2(player_body.getLinearVelocity().x, -26f));
 								}
@@ -497,11 +480,11 @@ public class Game extends SimpleBaseGameActivity {
 								if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
 									if(box_btn.getAlpha() == 1){
 										Log.d(TAG, "Picked up box");
-										if(!carringBox){
+										if(!gameLogic.getCarringBox()){
 											if(direction == LEFT || direction == STOP_LEFT){
 												if(gameLogic.remove_box_left(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene)){
 													Log.d(TAG, "Box removed");
-													carringBox = true;
+													gameLogic.setCarringBox(true);
 													new CarringBox().start();
 												}else{
 													Log.d(TAG, "Box not removed");
@@ -510,7 +493,7 @@ public class Game extends SimpleBaseGameActivity {
 											if(direction == RIGHT || direction == STOP_RIGHT){
 												if(gameLogic.remove_box_right(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene)){
 													Log.d(TAG, "Box removed");
-													carringBox = true;
+													gameLogic.setCarringBox(true);
 													new CarringBox().start();
 												}else{
 													Log.d(TAG, "Box not removed");
@@ -523,7 +506,7 @@ public class Game extends SimpleBaseGameActivity {
 												Log.d("Teste", "Player Y = " + player.getY() + " Map start y = " + MAP_START_Y);
 												if(gameLogic.leave_box_left(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene, box_layer, vertexBufferObjectManager, PHYSICS_VISIBILITY)){
 													Log.d(TAG, "Box leaved");
-													carringBox = false;
+													gameLogic.setCarringBox(false);
 													box_btn.setAlpha((float)0.3);
 												}else{
 													Log.d(TAG, "Could not leave the box");
@@ -532,7 +515,7 @@ public class Game extends SimpleBaseGameActivity {
 											}else if(direction == STOP_RIGHT){
 												if(gameLogic.leave_box_right(player.getX(), player.getY(), MAP_START_X, MAP_START_Y, SPACING, scene,  box_layer, vertexBufferObjectManager, PHYSICS_VISIBILITY)){
 													Log.d(TAG, "Box leaved");
-													carringBox = false;
+													gameLogic.setCarringBox(false);
 													box_btn.setAlpha((float)0.3);
 												}else{
 													Log.d(TAG, "Could not leave the box");
@@ -562,6 +545,7 @@ public class Game extends SimpleBaseGameActivity {
 					        boolean sound = settings.getBoolean("sound", true);
 					        if(sound){
 					        	musicPlayer.play();
+					        	musicPlayer.resume();
 					        	play_btn.setAlpha(1f);
 					        }else{
 					        	play_btn.setAlpha(0.4f);
@@ -660,8 +644,9 @@ public class Game extends SimpleBaseGameActivity {
 	}
 
 	private void player_walk_left() {
+		//Animate
 		long duration = 40;
-		if(carringBox) duration = 50;
+		if(gameLogic.getCarringBox()) duration = 50;
 		player.animate(new long[]{duration, duration, duration, duration, duration,
 				duration, duration, duration, duration, duration,
 				duration, duration, duration, duration, duration
@@ -669,16 +654,28 @@ public class Game extends SimpleBaseGameActivity {
 				, 299, 298, 297, 296, 295
 				,294, 293, 292, 291, 290
 				, 289}, 999);
-		//player.animate(new long[]{200, 200, 200, 200}, 14, 17, true);
+		//Set speed
+		if(!gameLogic.getCarringBox())
+			player_body.setLinearVelocity(new Vector2(-6, player_body.getLinearVelocity().y));
+		else
+			player_body.setLinearVelocity(new Vector2(-3, player_body.getLinearVelocity().y));
+		direction = LEFT;
 	}
 
 	private void player_walk_right() {
+		//Animate
 		long duration = 40;
-		if(carringBox) duration = 50;
+		if(gameLogic.getCarringBox()) duration = 50;
 		player.animate(new long[]{duration, duration, duration, duration, duration,
 				duration, duration, duration, duration, duration,
 				duration, duration, duration, duration, duration,
-				duration}, /*1*/32, /*16*/47, true);
+				duration}, 32, 47, true);
+		//Set speed
+		if(!gameLogic.getCarringBox())
+			player_body.setLinearVelocity(new Vector2(6, player_body.getLinearVelocity().y));
+		else
+			player_body.setLinearVelocity(new Vector2(3, player_body.getLinearVelocity().y));
+		direction = RIGHT;
 	}
 
 	private void player_stop_right() {
@@ -688,15 +685,6 @@ public class Game extends SimpleBaseGameActivity {
 				50}, 1, 16, true);
 	}
 
-	private void player_wins() {
-		player.animate(new long[]{100, 100, 100, 100, 100,
-				100, 100, 100, 100, 100,
-				100, 100, 100, 100, 100
-		}, new int[] {385, 384, 383, 382, 381,
-				380, 379, 378, 377, 376,
-				375, 374, 373, 372, 371}, 30);
-
-	}
 
 	private void initPhysics()
 	{
@@ -749,7 +737,7 @@ public class Game extends SimpleBaseGameActivity {
 					footContact++;
 				}
 
-				if(!carringBox){
+				if(!gameLogic.getCarringBox()){
 					if(contact.getFixtureA().getUserData() == "box sensor" && contact.getFixtureB().getUserData() == "box body"){
 						box_btn.setAlpha((float)1);
 					}else if(contact.getFixtureB().getUserData() == "box sensor" && contact.getFixtureA().getUserData() == "box body"){
@@ -769,7 +757,7 @@ public class Game extends SimpleBaseGameActivity {
 
 					//player_body.setLinearVelocity(new Vector2(0, 0));
 					jump_btn.setAlpha((float) 0.3);
-					win = true;
+					gameLogic.setWin(true);
 					
 					Game.this.toastOnUIThread("Hit 'back' if you want to pick another level",
 							Toast.LENGTH_SHORT);
@@ -785,7 +773,7 @@ public class Game extends SimpleBaseGameActivity {
 					hud.registerTouchArea(refresh_btn);
 					//player_body.setLinearVelocity(new Vector2(0, 0));
 					jump_btn.setAlpha((float) 0.3);
-					win = true;
+					gameLogic.setWin(true);
 					Game.this.toastOnUIThread("Hit 'back' if you want to pick another level",
 							Toast.LENGTH_SHORT);
 				}
@@ -798,7 +786,7 @@ public class Game extends SimpleBaseGameActivity {
 				if(contact.getFixtureB().getUserData() == "feet" || contact.getFixtureA().getUserData() == "feet"){
 					footContact--;
 				}
-				if(!carringBox){
+				if(!gameLogic.getCarringBox()){
 					if(contact.getFixtureA().getUserData() == "box sensor" && contact.getFixtureB().getUserData() == "box body"){
 						box_btn.setAlpha((float)0.3);
 					}else if(contact.getFixtureB().getUserData() == "box sensor" && contact.getFixtureA().getUserData() == "box body"){
@@ -838,7 +826,7 @@ public class Game extends SimpleBaseGameActivity {
 		{		
 			super.onModifierFinished(pItem);
 			if(pItem == go_back){
-				if(win){
+				if(gameLogic.getWin()){
 					SharedPreferences settings = getSharedPreferences("data", 0);
 					int level = settings.getInt("currLevel", -1);
 
@@ -876,7 +864,7 @@ public class Game extends SimpleBaseGameActivity {
 				}
 			});
 
-			while(carringBox){
+			while(gameLogic.getCarringBox()){
 				box.setPosition(player.getX() + 15, player.getY() - 75);
 				try {
 					sleep(5);
