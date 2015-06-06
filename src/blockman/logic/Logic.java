@@ -35,19 +35,20 @@ public class Logic {
 				int pos_y = mapStartY - i * spacing;
 				if(pos_x < player_pos_x && pos_x + 100 > player_pos_x)
 					if(pos_y < player_pos_y && pos_y + 100 > player_pos_y){
-						if(map.getMap()[a][i].getKind() != "blank"){
-							scene.detachChild(map.getMap()[a][i].getSprite());
-							physicsWorld.destroyBody(map.getMap()[a][i].getBody());
-							map.getMap()[a][i].getSprite().detachSelf();
-							map.getMap()[a][i].getSprite().dispose();
-							map.getMap()[a][i].setBlank();
-							return true;
-						}
+						if(!map.isSomethingUp(a,i))
+							if(map.getMap()[a][i].getKind() != "blank"){
+								scene.detachChild(map.getMap()[a][i].getSprite());
+								physicsWorld.destroyBody(map.getMap()[a][i].getBody());
+								map.getMap()[a][i].getSprite().detachSelf();
+								map.getMap()[a][i].getSprite().dispose();
+								map.getMap()[a][i].setBlank();
+								return true;
+							}
 					}
 			}
 		return false;
 	}
-	
+
 	public boolean remove_box_right(float player_pos_x, float player_pos_y, int mapStartX, int mapStartY, int spacing, Scene scene) {
 		for(int i = 0; i < map.getHeight(); i++)
 			for(int a = 0; a < map.getWidth(); a++){
@@ -55,14 +56,15 @@ public class Logic {
 				int pos_y = mapStartY - i * spacing;
 				if(pos_x - 100 < player_pos_x && pos_x > player_pos_x)
 					if(pos_y < player_pos_y && pos_y + 100 > player_pos_y){
-						if(map.getMap()[a][i].getKind() != "blank"){
-							scene.detachChild(map.getMap()[a][i].getSprite());
-							physicsWorld.destroyBody(map.getMap()[a][i].getBody());
-							map.getMap()[a][i].getSprite().detachSelf();
-							map.getMap()[a][i].getSprite().dispose();
-							map.getMap()[a][i].setBlank();
-							return true;
-						}
+						if(!map.isSomethingUp(a,i))
+							if(map.getMap()[a][i].getKind() != "blank"){
+								scene.detachChild(map.getMap()[a][i].getSprite());
+								physicsWorld.destroyBody(map.getMap()[a][i].getBody());
+								map.getMap()[a][i].getSprite().detachSelf();
+								map.getMap()[a][i].getSprite().dispose();
+								map.getMap()[a][i].setBlank();
+								return true;
+							}
 					}
 			}
 		return false;

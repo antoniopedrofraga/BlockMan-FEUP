@@ -350,4 +350,9 @@ public class Map {
 		}
 		return 0;
 	}
+	
+	public boolean isSomethingUp(int x, int y) {
+		if(map[x][y+1].getKind() == "blank") return false;
+		return true;
+	}
 }

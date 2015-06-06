@@ -156,8 +156,7 @@ public class Game extends SimpleBaseGameActivity {
 	//--------------------------
 	String direction = "";
 	//--------------------------
-	//Sprites-------------------
-	private ITextureRegion myLayerMid;
+	//Sprites------------------
 	private ITextureRegion myLayerFront;
 	private BitmapTextureAtlas myBackgroundTexture;
 
@@ -211,7 +210,7 @@ public class Game extends SimpleBaseGameActivity {
 		this.myChaseCamera = new BoundCamera(CAMERA_WIDTH, CAMERA_HEIGHT , CAMERA_WIDTH ,CAMERA_HEIGHT);
 		//myChaseCamera.setCenter(CAMERA_WIDTH/3, 7 * CAMERA_HEIGHT / 9);
 		myChaseCamera.setBoundsEnabled(true);
-		myChaseCamera.setBounds(0 , 0, 3000 , 1708);
+		myChaseCamera.setBounds(0 , -2000, 3000 , 1708);
 
 		EngineOptions options = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new FillResolutionPolicy(), myChaseCamera);
 
@@ -238,7 +237,6 @@ public class Game extends SimpleBaseGameActivity {
 
 		this.myBackgroundTexture = new BitmapTextureAtlas(this.getTextureManager(), 3000, 1708);
 		this.myLayerFront = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.myBackgroundTexture, this, "ingame_back.jpg", 0, 0);
-		this.myLayerMid = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.myBackgroundTexture, this, "clouds.png", 0, 188);
 		this.myBackgroundTexture.load();
 		Log.d("BlockMan", "Starting to load player");
 		long current_time = System.currentTimeMillis();
@@ -298,13 +296,6 @@ public class Game extends SimpleBaseGameActivity {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
 		scene = new Scene();
-
-		final AutoParallaxBackground autoParallaxBackground = new AutoParallaxBackground(0, 0, 0, 5);
-		vertexBufferObjectManager = this.getVertexBufferObjectManager();
-		autoParallaxBackground.attachParallaxEntity(new ParallaxBackground.ParallaxEntity(0f, new Sprite(0, CAMERA_HEIGHT - this.myLayerFront.getHeight(), this.myLayerFront, vertexBufferObjectManager)));
-		autoParallaxBackground.attachParallaxEntity(new ParallaxBackground.ParallaxEntity(0f, new Sprite(0, 0, this.myLayerMid, vertexBufferObjectManager)));
-		//scene.setBackground(autoParallaxBackground);
-
 		back = new Sprite(0, CAMERA_HEIGHT - this.myLayerFront.getHeight(), this.myLayerFront, vertexBufferObjectManager);
 		scene.attachChild(back);
 
@@ -429,7 +420,7 @@ public class Game extends SimpleBaseGameActivity {
 			hud.registerTouchArea(go_back);
 			go_back.setScale((float)0.8);
 
-			refresh_btn =  new ButtonSprite(1270 - 450, 325 , refresh_btn_texture,  vertexBufferObjectManager){
+			refresh_btn =  new ButtonSprite(150, 25 , refresh_btn_texture,  vertexBufferObjectManager){
 				@Override
 				public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 						float pTouchAreaLocalX, float pTouchAreaLocalY) {
@@ -439,7 +430,9 @@ public class Game extends SimpleBaseGameActivity {
 					return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
 				}};
 
-
+				hud.attachChild(refresh_btn);
+				hud.registerTouchArea(refresh_btn);
+				refresh_btn.setScale(0.8f);
 
 				play_btn = new ButtonSprite(1050, 50, play_btn_texture, vertexBufferObjectManager){
 					@Override
@@ -773,9 +766,9 @@ public class Game extends SimpleBaseGameActivity {
 					go_back.setPosition(350, 325);
 					go_back.setScale(1.5f);
 
-					hud.attachChild(refresh_btn);
+					
 					refresh_btn.setScale(1.5f);
-					hud.registerTouchArea(refresh_btn);
+					refresh_btn.setPosition(1270 - 450, 325);
 
 					//player_body.setLinearVelocity(new Vector2(0, 0));
 					jump_btn.setAlpha((float) 0.3);

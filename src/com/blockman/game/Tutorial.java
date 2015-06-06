@@ -808,7 +808,7 @@ public class Tutorial extends SimpleBaseGameActivity {
 				state = 1;
 			}
 			if(state == 1){
-				info = new Text(PLAYER_START_X - 830, CAMERA_HEIGHT / 2 - 300, info_font, "Move rigth by taping the\nright side of the screen",getVertexBufferObjectManager());
+				info = new Text(PLAYER_START_X - 830, CAMERA_HEIGHT / 2 - 300, info_font, "Move right by taping the\nright side of the screen",getVertexBufferObjectManager());
 				scene.setOnSceneTouchListener(tListener);
 				hud.attachChild(info);
 			}else if(state == 2){
