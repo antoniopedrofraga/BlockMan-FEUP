@@ -735,9 +735,6 @@ public class Game extends SimpleBaseGameActivity {
 
 		scene.registerUpdateHandler(physicsWorld);
 
-		DebugRenderer debug = new DebugRenderer(physicsWorld, getVertexBufferObjectManager());
-		scene.attachChild(debug);
-
 	}
 
 	private ContactListener createContactListener()
