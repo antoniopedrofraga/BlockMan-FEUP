@@ -494,15 +494,18 @@ public class MainMenu extends SimpleBaseGameActivity {
     	scene.attachChild(quit);
     	scene.registerTouchArea(quit);
     	scene.registerTouchArea(lv1);
-    	scene.registerTouchArea(lv2);
+    	
     	if(level < 2) lv2.setAlpha(0.4f);
-    	scene.registerTouchArea(lv3);
+    	else scene.registerTouchArea(lv2);
+    	
     	if(level < 3) lv3.setAlpha(0.4f);
-    	scene.registerTouchArea(lv4);
+    	else scene.registerTouchArea(lv3);
+    	
     	if(level < 4) lv4.setAlpha(0.4f);
-    	scene.registerTouchArea(lv5);
+    	else scene.registerTouchArea(lv4);
+    	
     	if(level < 5) lv5.setAlpha(0.4f);
-    	//scene.registerTouchArea(lv6);
+    	else scene.registerTouchArea(lv5);
 	}
 
 
