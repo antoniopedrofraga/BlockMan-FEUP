@@ -10,14 +10,13 @@ import org.andengine.extension.physics.box2d.PhysicsWorld;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
-import android.util.Log;
-import android.widget.Toast;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.blockman.data.Map;
-import com.blockman.game.Game;
 
 public class Logic {
 	private Map map;
@@ -31,6 +30,9 @@ public class Logic {
 		this.physicsWorld = physicsWorld;
 	}
 	
+	public Logic() {
+	}
+
 	public boolean remove_box_left(float player_pos_x, float player_pos_y, int mapStartX, int mapStartY, int spacing, Scene scene) {
 		for(int i = 0; i < map.getHeight(); i++)
 			for(int a = 0; a < map.getWidth(); a++){
@@ -152,5 +154,38 @@ public class Logic {
 	
 	public void setCarringBox(boolean a){
 		carringBox = a;
+	}
+
+	public Body generatePlayer(Body player_body, float PLAYER_START_X, float PLAYER_START_Y, VertexBufferObjectManager vertex) {
+		final FixtureDef playerFixtureDef = PhysicsFactory.createFixtureDef(0, 0, 0f);
+		final IShape player_shape = new Rectangle(PLAYER_START_X, PLAYER_START_Y, 40, 60, vertex);
+
+		player_body = PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) player_shape, BodyType.DynamicBody,  playerFixtureDef);
+		player_body.setFixedRotation(true); // prevent rotation
+     
+		//----------------------
+		//Add onFloor sensor-----
+
+		PolygonShape sensor = new PolygonShape();
+		sensor.setAsBox((float)0.3, (float)1.2,new Vector2(0, 0), 0);
+		player_body.createFixture(sensor, 0).setSensor(true);
+
+		PolygonShape sensor_box = new PolygonShape();
+		sensor_box.setAsBox((float)1, (float)0.3,new Vector2(0, 0), 0);
+		player_body.createFixture(sensor_box, 0).setSensor(true);
+
+		player_body.getFixtureList().get(2).setUserData("box sensor");
+		player_body.getFixtureList().get(1).setUserData("feet");
+		player_body.getFixtureList().get(0).setUserData("body");
+		
+		return player_body;
+	}
+
+	public void setMap(Map map2) {
+		this.map = map2;
+	}
+
+	public void setPhysics(PhysicsWorld physicsWorld2) {
+		this.physicsWorld = physicsWorld2;
 	}
 }

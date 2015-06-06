@@ -1,24 +1,20 @@
 package com.blockman.game;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.hardware.SensorManager;
 import android.util.Log;
 import android.widget.Toast;
 import blockman.logic.Logic;
-
 import org.andengine.engine.camera.BoundCamera;
 import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.handler.physics.PhysicsHandler;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
-import org.andengine.entity.Entity;
 import org.andengine.entity.IEntity;
-import org.andengine.entity.modifier.EntityModifier;
 import org.andengine.entity.modifier.FadeInModifier;
 import org.andengine.entity.modifier.FadeOutModifier;
-import org.andengine.entity.modifier.IEntityModifier;
 import org.andengine.entity.modifier.SequenceEntityModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.IOnSceneTouchListener;
@@ -32,7 +28,6 @@ import org.andengine.entity.sprite.ButtonSprite;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.util.FPSLogger;
-import org.andengine.extension.debugdraw.DebugRenderer;
 import org.andengine.extension.physics.box2d.PhysicsConnector;
 import org.andengine.extension.physics.box2d.PhysicsFactory;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
@@ -47,25 +42,19 @@ import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.color.Color;
-import org.andengine.util.debug.Debug;
-import org.apache.http.protocol.HTTP;
-
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
-import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.Shape;
 import com.blockman.data.Map;
-import com.blockman.data.Position;
 
 
+@SuppressLint("RtlHardcoded")
 public class Tutorial extends SimpleBaseGameActivity {
 	//COSNTANTS-----------------
 	private static final int CAMERA_WIDTH = 1270;
@@ -107,13 +96,7 @@ public class Tutorial extends SimpleBaseGameActivity {
 	//Physics-------------------
 	private PhysicsWorld physicsWorld;
 
-	private PhysicsHandler playerPhysics;
-
 	private Body player_body;
-
-	private Body sensor_body;
-
-	private Body box_body;
 
 	private boolean footContact = false; //how many footcontact there is
 
@@ -149,22 +132,13 @@ public class Tutorial extends SimpleBaseGameActivity {
 	//-----------------------------
 	//Map Sprites-----------------
 	Map map;
-	private Sprite rock;
 	private ITextureRegion rock_layer;
 	private BitmapTextureAtlas rock_bmp;
 
 	private BitmapTextureAtlas box_bmp;
 	private ITextureRegion box_layer;
-	private Sprite box;
-
 	private BitmapTextureAtlas door_bmp;
 	private ITextureRegion door_layer;
-	private Sprite door;
-
-
-	//----------------------------
-	//Controls--------------------
-	private long tap_time;
 	//---------------------------
 	//Text------------------------
 	private Font title_font;
@@ -283,7 +257,7 @@ public class Tutorial extends SimpleBaseGameActivity {
 			@Override
 			public boolean onSceneTouchEvent(Scene pScene, final TouchEvent pSceneTouchEvent) {
 				if (pSceneTouchEvent.isActionDown()) {
-					tap_time = System.currentTimeMillis();
+					System.currentTimeMillis();
 					if(!win)
 						if(pSceneTouchEvent.getX() > player.getX()) {
 							if(direction != RIGHT) {
@@ -526,7 +500,6 @@ public class Tutorial extends SimpleBaseGameActivity {
 				if(map.getMap()[a][i].getKind() == "rock"){
 					//sprites stuff
 					map.getMap()[a][i].setSprite(new Sprite(MAP_START_X + SPACING * a, MAP_START_Y - SPACING * i,rock_layer, vertexBufferObjectManager));
-					map.pushPos(new Position(a,i));
 					scene.attachChild(map.getMap()[a][i].getSprite());
 
 					//physics stuff
@@ -541,7 +514,6 @@ public class Tutorial extends SimpleBaseGameActivity {
 				}else if(map.getMap()[a][i].getKind() == "box"){
 					//sprites stuff
 					map.getMap()[a][i].setSprite(new Sprite(MAP_START_X + SPACING * a, MAP_START_Y - SPACING * i,box_layer, vertexBufferObjectManager));
-					map.pushPos(new Position(a,i));
 					scene.attachChild(map.getMap()[a][i].getSprite());
 					//physics suff
 					IShape box = new Rectangle(MAP_START_X + SPACING * a, MAP_START_Y - SPACING * i, 100, 100, getVertexBufferObjectManager());
@@ -553,7 +525,6 @@ public class Tutorial extends SimpleBaseGameActivity {
 					scene.attachChild(box);
 				}else if(map.getMap()[a][i].getKind() == "exit"){
 					map.getMap()[a][i].setSprite(new Sprite(MAP_START_X + SPACING * a + 15, MAP_START_Y - SPACING * i + 30,door_layer, vertexBufferObjectManager));
-					map.pushPos(new Position(a,i));
 					scene.attachChild(map.getMap()[a][i].getSprite());
 
 					IShape box = new Rectangle(MAP_START_X + SPACING * a + 45, MAP_START_Y - SPACING * i + 90, 10, 10, getVertexBufferObjectManager());
@@ -612,21 +583,12 @@ public class Tutorial extends SimpleBaseGameActivity {
 				50}, 1, 16, true);
 	}
 
-	private void player_wins() {
-		player.animate(new long[]{100, 100, 100, 100, 100,
-				100, 100, 100, 100, 100,
-				100, 100, 100, 100, 100
-		}, new int[] {385, 384, 383, 382, 381,
-				380, 379, 378, 377, 376,
-				375, 374, 373, 372, 371}, 30);
-
-	}
 
 
 	private void initPhysics()
 	{
 		physicsWorld = new PhysicsWorld(new Vector2(0, 90f), false);
-		playerPhysics = new PhysicsHandler(player);
+		new PhysicsHandler(player);
 
 		final IShape bottom = new Rectangle(0, PLAYER_START_Y + 60, 3000, 20, getVertexBufferObjectManager());
 		bottom.setVisible(PHYSICS_VISIBILITY);
@@ -799,7 +761,6 @@ public class Tutorial extends SimpleBaseGameActivity {
 		}
 		public void run() {
 			if(state == 0){
-				float pos = player.getX();
 				try {
 					sleep(3000);
 				} catch (InterruptedException e1) {

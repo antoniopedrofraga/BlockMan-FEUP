@@ -1,12 +1,10 @@
 package com.blockman.game;
 
-import java.io.File;
 import java.io.IOException;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.hardware.SensorManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -14,26 +12,18 @@ import blockman.logic.Logic;
 
 import org.andengine.audio.music.Music;
 import org.andengine.audio.music.MusicFactory;
-import org.andengine.engine.Engine;
 import org.andengine.engine.camera.BoundCamera;
 import org.andengine.engine.camera.hud.HUD;
-import org.andengine.engine.handler.physics.PhysicsHandler;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
-import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
-import org.andengine.entity.Entity;
 import org.andengine.entity.IEntity;
-import org.andengine.entity.modifier.EntityModifier;
 import org.andengine.entity.modifier.FadeInModifier;
 import org.andengine.entity.modifier.FadeOutModifier;
-import org.andengine.entity.modifier.IEntityModifier;
 import org.andengine.entity.modifier.SequenceEntityModifier;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
-import org.andengine.entity.scene.background.AutoParallaxBackground;
-import org.andengine.entity.scene.background.ParallaxBackground;
 import org.andengine.entity.shape.IAreaShape;
 import org.andengine.entity.shape.IShape;
 import org.andengine.entity.sprite.AnimatedSprite;
@@ -41,7 +31,6 @@ import org.andengine.entity.sprite.ButtonSprite;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.util.FPSLogger;
-import org.andengine.extension.debugdraw.DebugRenderer;
 import org.andengine.extension.physics.box2d.PhysicsConnector;
 import org.andengine.extension.physics.box2d.PhysicsFactory;
 import org.andengine.extension.physics.box2d.PhysicsWorld;
@@ -56,25 +45,21 @@ import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.color.Color;
-import org.andengine.util.debug.Debug;
-import org.apache.http.protocol.HTTP;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
-import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.Shape;
 import com.blockman.data.Map;
-import com.blockman.data.Position;
 
 
+
+
+@SuppressLint("RtlHardcoded")
 public class Game extends SimpleBaseGameActivity {
 	//COSNTANTS-----------------
 	private static final int CAMERA_WIDTH = 1270;
@@ -104,21 +89,15 @@ public class Game extends SimpleBaseGameActivity {
 	//--------------------------
 	//Camera--------------------
 	private BoundCamera myChaseCamera;
-	private HUD mHUD;
 	//--------------------------
 	//Physics-------------------
 	private PhysicsWorld physicsWorld;
-	private PhysicsHandler playerPhysics;
 	private Body player_body;
-	private Body sensor_body;
-	private Body box_body;
-
 	private int footContact = 0; //how many footcontact there is
 
 	//--------------------------
 	//Add Scene-----------------
 	private Scene scene;
-	private IOnSceneTouchListener tListener;
 	private HUD hud;
 	//--------------------------
 	//Buttons-------------------
@@ -157,43 +136,32 @@ public class Game extends SimpleBaseGameActivity {
 	//-----------------------------
 	//Map Sprites-----------------
 	Map map;
-	private Sprite rock;
 	private ITextureRegion rock_layer;
 	private BitmapTextureAtlas rock_bmp;
 
 	private BitmapTextureAtlas box_bmp;
 	private ITextureRegion box_layer;
-	private Sprite box;
-
 	private BitmapTextureAtlas door_bmp;
 	private ITextureRegion door_layer;
-	private Sprite door;
-
 	//--------
 	//MUSIC
 	private Music musicPlayer;
 	//--------
 
-	//----------------------------
-	//Controls--------------------
-	private long tap_time;
 	//---------------------------
 	//Text------------------------
 	private Font title_font;
 	private Text title;
 	private Text winningMessage;
 	//--------------------------
-	//gameLogic.getgameLogic.getWin()()---------------------
-	Logic gameLogic;
-	private float EXIT_X;
-	private float EXIT_Y;
-	//--------------------------
-
-	//--------------------------
-	//FLAGS
-	private int oneAnim = 0;
+	//---------------------
+	Logic gameLogic =  new Logic();
 	private int curr_level;
 	//--------------------------
+	
+	//Tests
+	private static Game game;
+	//
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -315,11 +283,11 @@ public class Game extends SimpleBaseGameActivity {
 		FadeOutModifier mModifier = new FadeOutModifier(5.0f);
 		title.registerEntityModifier(mModifier);
 
-		scene.setOnSceneTouchListener(tListener = new IOnSceneTouchListener() {
+		scene.setOnSceneTouchListener(new IOnSceneTouchListener() {
 			@Override
 			public boolean onSceneTouchEvent(Scene pScene, final TouchEvent pSceneTouchEvent) {
 				if (pSceneTouchEvent.isActionDown()) {
-					tap_time = System.currentTimeMillis();
+					System.currentTimeMillis();
 					if(!gameLogic.getWin())
 						if(pSceneTouchEvent.getX() > player.getX()) {
 							if(direction != RIGHT) {
@@ -539,7 +507,7 @@ public class Game extends SimpleBaseGameActivity {
 
 							physicsWorld.setContactListener(createContactListener());
 
-							gameLogic = new Logic(map,physicsWorld);
+							gameLogic.setMap(map);
 							
 							SharedPreferences settings = getSharedPreferences("data", 0);
 					        boolean sound = settings.getBoolean("sound", true);
@@ -578,15 +546,11 @@ public class Game extends SimpleBaseGameActivity {
 			else map.generateMap();
 		}
 
-		EXIT_X = 200;
-		EXIT_Y = CAMERA_HEIGHT / 2 - 300;
-
 		for(int i = 0; i < map.getHeight(); i++){
 			for(int a = 0; a < map.getWidth(); a++){
 				if(map.getMap()[a][i].getKind() == "rock"){
 					//sprites stuff
 					map.getMap()[a][i].setSprite(new Sprite(MAP_START_X + SPACING * a, MAP_START_Y - SPACING * i,rock_layer, vertexBufferObjectManager));
-					map.pushPos(new Position(a,i));
 					scene.attachChild(map.getMap()[a][i].getSprite());
 
 					//physics stuff
@@ -601,7 +565,6 @@ public class Game extends SimpleBaseGameActivity {
 				}else if(map.getMap()[a][i].getKind() == "box"){
 					//sprites stuff
 					map.getMap()[a][i].setSprite(new Sprite(MAP_START_X + SPACING * a, MAP_START_Y - SPACING * i,box_layer, vertexBufferObjectManager));
-					map.pushPos(new Position(a,i));
 					scene.attachChild(map.getMap()[a][i].getSprite());
 					//physics suff
 					IShape box = new Rectangle(MAP_START_X + SPACING * a, MAP_START_Y - SPACING * i, 100, 100, getVertexBufferObjectManager());
@@ -613,7 +576,6 @@ public class Game extends SimpleBaseGameActivity {
 					scene.attachChild(box);
 				}else if(map.getMap()[a][i].getKind() == "exit"){
 					map.getMap()[a][i].setSprite(new Sprite(MAP_START_X + SPACING * a + 15, MAP_START_Y - SPACING * i + 30,door_layer, vertexBufferObjectManager));
-					map.pushPos(new Position(a,i));
 					scene.attachChild(map.getMap()[a][i].getSprite());
 
 					IShape box = new Rectangle(MAP_START_X + SPACING * a + 45, MAP_START_Y - SPACING * i + 90, 10, 10, getVertexBufferObjectManager());
@@ -689,8 +651,10 @@ public class Game extends SimpleBaseGameActivity {
 	private void initPhysics()
 	{
 		physicsWorld = new PhysicsWorld(new Vector2(0, 90f), false);
-		playerPhysics = new PhysicsHandler(player);
+		//playerPhysics = new PhysicsHandler(player);
 
+		gameLogic.setPhysics(physicsWorld);
+		
 		final IShape bottom = new Rectangle(0, PLAYER_START_Y + 60, 3000, 20, getVertexBufferObjectManager());
 		bottom.setVisible(PHYSICS_VISIBILITY);
 
@@ -699,28 +663,8 @@ public class Game extends SimpleBaseGameActivity {
 		scene.attachChild(bottom);
 
 		//Add player-----------
-		final FixtureDef playerFixtureDef = PhysicsFactory.createFixtureDef(0, 0, 0f);
-		final IShape player_shape = new Rectangle(PLAYER_START_X, PLAYER_START_Y, 40, 60, getVertexBufferObjectManager());
-
-		player_body = PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) player_shape, BodyType.DynamicBody,  playerFixtureDef);
-		player_body.setFixedRotation(true); // prevent rotation
-
-		physicsWorld.registerPhysicsConnector(new PhysicsConnector(player, player_body, true, false));        
-		//----------------------
-		//Add onFloor sensor-----
-
-		PolygonShape sensor = new PolygonShape();
-		sensor.setAsBox((float)0.3, (float)1.2,new Vector2(0, 0), 0);
-		player_body.createFixture(sensor, 0).setSensor(true);
-
-		PolygonShape sensor_box = new PolygonShape();
-		sensor_box.setAsBox((float)1, (float)0.3,new Vector2(0, 0), 0);
-		player_body.createFixture(sensor_box, 0).setSensor(true);
-
-		player_body.getFixtureList().get(2).setUserData("box sensor");
-		player_body.getFixtureList().get(1).setUserData("feet");
-		player_body.getFixtureList().get(0).setUserData("body");
-
+		player_body = gameLogic.generatePlayer(player_body, PLAYER_START_X, PLAYER_START_Y, getVertexBufferObjectManager());
+		physicsWorld.registerPhysicsConnector(new PhysicsConnector(player, player_body, true, false));   
 		scene.registerUpdateHandler(physicsWorld);
 
 	}
@@ -835,6 +779,9 @@ public class Game extends SimpleBaseGameActivity {
 						editor.putInt("currLevel", curr_level + 1);
 						editor.commit();
 					}
+					if(musicPlayer != null){
+		        		musicPlayer.release();
+		        	}
 				}
 				Intent back = new Intent(getBaseContext(), MainMenu.class);
 				back.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -884,5 +831,20 @@ public class Game extends SimpleBaseGameActivity {
 			});
 		}
 	}
-
+	
+	
+	//Funções usadas nos testes.
+	
+	public Game(){
+		
+		onCreateEngineOptions();
+		onCreateResources();
+		onCreateScene();
+		
+		game = this;
+	}
+	
+	public Game getInstance(){
+		return game;
+	}
 }
