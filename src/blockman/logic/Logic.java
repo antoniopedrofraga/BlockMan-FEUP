@@ -40,12 +40,18 @@ public class Logic {
 				int pos_y = mapStartY - i * spacing;
 				if(pos_x < player_pos_x && pos_x + 100 > player_pos_x)
 					if(pos_y < player_pos_y && pos_y + 100 > player_pos_y){
+						System.out.println(map.getMap()[a][i].getKind());
+						System.out.println("A = " + a);
 						if(!map.isSomethingUp(a,i))
 							if(map.getMap()[a][i].getKind() != "blank"){
-								scene.detachChild(map.getMap()[a][i].getSprite());
-								physicsWorld.destroyBody(map.getMap()[a][i].getBody());
-								map.getMap()[a][i].getSprite().detachSelf();
-								map.getMap()[a][i].getSprite().dispose();
+								if(map.getMap()[a][i].getSprite() != null)
+									scene.detachChild(map.getMap()[a][i].getSprite());
+								if(physicsWorld != null){
+									physicsWorld.destroyBody(map.getMap()[a][i].getBody());
+									map.getMap()[a][i].getSprite().detachSelf();
+									map.getMap()[a][i].getSprite().dispose();
+								}
+								
 								map.getMap()[a][i].setBlank();
 								return true;
 							}
@@ -63,10 +69,14 @@ public class Logic {
 					if(pos_y < player_pos_y && pos_y + 100 > player_pos_y){
 						if(!map.isSomethingUp(a,i))
 							if(map.getMap()[a][i].getKind() != "blank"){
-								scene.detachChild(map.getMap()[a][i].getSprite());
-								physicsWorld.destroyBody(map.getMap()[a][i].getBody());
-								map.getMap()[a][i].getSprite().detachSelf();
-								map.getMap()[a][i].getSprite().dispose();
+								if(physicsWorld != null){
+									scene.detachChild(map.getMap()[a][i].getSprite());
+									physicsWorld.destroyBody(map.getMap()[a][i].getBody());
+								}
+								if(map.getMap()[a][i].getSprite() != null){
+									map.getMap()[a][i].getSprite().detachSelf();
+									map.getMap()[a][i].getSprite().dispose();
+								}
 								map.getMap()[a][i].setBlank();
 								return true;
 							}
@@ -93,17 +103,21 @@ public class Logic {
 								if(map.getMap()[box_to_change][i].getKind() == "blank"){
 									int y = map.getLowerY(box_to_change, i);
 									int new_pos_y = mapStartY - y * spacing;
-									map.getMap()[box_to_change][y].setSprite(new Sprite(pos_x-space, new_pos_y ,box_layer, vertexBufferObjectManager));
+									System.out.println("Box to change " + box_to_change);
 									map.getMap()[box_to_change][y].setKind("box");
-									scene.attachChild(map.getMap()[box_to_change][y].getSprite());
+									if(box_layer != null){
+										map.getMap()[box_to_change][y].setSprite(new Sprite(pos_x-space, new_pos_y ,box_layer, vertexBufferObjectManager));
+										scene.attachChild(map.getMap()[box_to_change][y].getSprite());
+									}
 									//Placing physics Body
-									IShape box = new Rectangle(pos_x - space, new_pos_y, 100, 100, vertexBufferObjectManager);
-									box.setVisible(vis);
-									FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(10, 0, 0f);
-									Body b = PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) box, BodyType.StaticBody, wallFixtureDef);
-									b.getFixtureList().get(0).setUserData("box body");
-									map.getMap()[box_to_change][y].setBody(b);
-
+									if(physicsWorld != null){
+										IShape box = new Rectangle(pos_x - space, new_pos_y, 100, 100, vertexBufferObjectManager);
+										box.setVisible(vis);
+										FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(10, 0, 0f);
+										Body b = PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) box, BodyType.StaticBody, wallFixtureDef);
+										b.getFixtureList().get(0).setUserData("box body");
+										map.getMap()[box_to_change][y].setBody(b);
+									}
 									return true;
 								}
 					}
@@ -124,16 +138,20 @@ public class Logic {
 							//Placing sprites
 							int y = map.getLowerY(a + 1, i);
 							int new_pos_y = mapStartY - y * spacing;
-							map.getMap()[a + 1][y].setSprite(new Sprite(pos_x + 100, new_pos_y ,box_layer, vertexBufferObjectManager));
 							map.getMap()[a + 1][y].setKind("box");
-							scene.attachChild(map.getMap()[a + 1][y].getSprite());
+							if(box_layer != null){
+								map.getMap()[a + 1][y].setSprite(new Sprite(pos_x + 100, new_pos_y ,box_layer, vertexBufferObjectManager));
+								scene.attachChild(map.getMap()[a + 1][y].getSprite());
+							}
 							//Placing physics Body
-							IShape box = new Rectangle(pos_x + 100, new_pos_y, 100, 100, vertexBufferObjectManager);
-		                    box.setVisible(vis);
-		                    FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(0, 0, 1f);
-		                    Body b = PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) box, BodyType.StaticBody, wallFixtureDef);
-		                    b.getFixtureList().get(0).setUserData("box body");
-		                    map.getMap()[a + 1][y].setBody(b);
+							if(physicsWorld != null){
+								IShape box = new Rectangle(pos_x + 100, new_pos_y, 100, 100, vertexBufferObjectManager);
+								box.setVisible(vis);
+								FixtureDef wallFixtureDef = PhysicsFactory.createFixtureDef(0, 0, 1f);
+								Body b = PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) box, BodyType.StaticBody, wallFixtureDef);
+								b.getFixtureList().get(0).setUserData("box body");
+								map.getMap()[a + 1][y].setBody(b);
+							}
 							return true;
 						}
 					}
@@ -156,30 +174,6 @@ public class Logic {
 		carringBox = a;
 	}
 
-	public Body generatePlayer(Body player_body, float PLAYER_START_X, float PLAYER_START_Y, VertexBufferObjectManager vertex) {
-		final FixtureDef playerFixtureDef = PhysicsFactory.createFixtureDef(0, 0, 0f);
-		final IShape player_shape = new Rectangle(PLAYER_START_X, PLAYER_START_Y, 40, 60, vertex);
-
-		player_body = PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) player_shape, BodyType.DynamicBody,  playerFixtureDef);
-		player_body.setFixedRotation(true); // prevent rotation
-     
-		//----------------------
-		//Add onFloor sensor-----
-
-		PolygonShape sensor = new PolygonShape();
-		sensor.setAsBox((float)0.3, (float)1.2,new Vector2(0, 0), 0);
-		player_body.createFixture(sensor, 0).setSensor(true);
-
-		PolygonShape sensor_box = new PolygonShape();
-		sensor_box.setAsBox((float)1, (float)0.3,new Vector2(0, 0), 0);
-		player_body.createFixture(sensor_box, 0).setSensor(true);
-
-		player_body.getFixtureList().get(2).setUserData("box sensor");
-		player_body.getFixtureList().get(1).setUserData("feet");
-		player_body.getFixtureList().get(0).setUserData("body");
-		
-		return player_body;
-	}
 
 	public void setMap(Map map2) {
 		this.map = map2;

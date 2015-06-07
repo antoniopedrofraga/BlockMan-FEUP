@@ -54,6 +54,7 @@ import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.blockman.data.Map;
 
 
@@ -663,7 +664,26 @@ public class Game extends SimpleBaseGameActivity {
 		scene.attachChild(bottom);
 
 		//Add player-----------
-		player_body = gameLogic.generatePlayer(player_body, PLAYER_START_X, PLAYER_START_Y, getVertexBufferObjectManager());
+		final FixtureDef playerFixtureDef = PhysicsFactory.createFixtureDef(0, 0, 0f);
+		final IShape player_shape = new Rectangle(PLAYER_START_X, PLAYER_START_Y, 40, 60, getVertexBufferObjectManager());
+
+		player_body = PhysicsFactory.createBoxBody(physicsWorld, (IAreaShape) player_shape, BodyType.DynamicBody,  playerFixtureDef);
+		player_body.setFixedRotation(true); // prevent rotation
+     
+		//----------------------
+		//Add onFloor sensor-----
+
+		PolygonShape sensor = new PolygonShape();
+		sensor.setAsBox((float)0.3, (float)1.2,new Vector2(0, 0), 0);
+		player_body.createFixture(sensor, 0).setSensor(true);
+
+		PolygonShape sensor_box = new PolygonShape();
+		sensor_box.setAsBox((float)1, (float)0.3,new Vector2(0, 0), 0);
+		player_body.createFixture(sensor_box, 0).setSensor(true);
+
+		player_body.getFixtureList().get(2).setUserData("box sensor");
+		player_body.getFixtureList().get(1).setUserData("feet");
+		player_body.getFixtureList().get(0).setUserData("body");
 		physicsWorld.registerPhysicsConnector(new PhysicsConnector(player, player_body, true, false));   
 		scene.registerUpdateHandler(physicsWorld);
 
@@ -831,20 +851,5 @@ public class Game extends SimpleBaseGameActivity {
 			});
 		}
 	}
-	
-	
-	//Funções usadas nos testes.
-	
-	public Game(){
-		
-		onCreateEngineOptions();
-		onCreateResources();
-		onCreateScene();
-		
-		game = this;
-	}
-	
-	public Game getInstance(){
-		return game;
-	}
+
 }
