@@ -2,34 +2,79 @@ package com.blockman.data;
 
 
 /**
+ * Classe Map que está encarregue de criar mapas para o jogo
  * Created by Pedro on 01/06/2015.
  */
 public class Map {
+	
+	/**
+	 * Largura do mapa
+	 */
 	private int width;
+	
+	/**
+	 * Altura do mapa
+	 */
 	private int height;
+	
+	/**
+	 * Coordenada X da saída
+	 */
 	private int exit_x;
+	
+	/**
+	 * Coordenada Y da saída
+	 */
 	private int exit_y;
+	
+	/**
+	 * Mapa que é uma caixa bidimensional
+	 */
 	private Box map[][];
 
+	/**
+	 * Construtor da classe Map, constrói um novo mapa
+	 * @param width largura do mapa
+	 * @param height altura do mapa
+	 */
 	public Map(int width, int height){
 		this.width = width;
 		this.height = height;
 		map = new Box[width][height];
 	}
+	
+	/**
+	 * Construtor vazio da classe Map
+	 */
 	public Map(){};
 
+	/**
+	 * Retorna a largura do mapa
+	 * @return width
+	 */
 	public int getWidth(){
 		return width;
 	}
 
+	/**
+	 * Retorna a altura do mapa
+	 * @return height
+	 */
 	public int getHeight(){
 		return height;
 	}
 
+	/**
+	 * Retorna uma caixa bidimensional
+	 * @return map
+	 */
 	public Box [][] getMap(){
 		return map;
 	}
 
+	/**
+	 * Gera o primeiro nível do jogo
+	 */
 	public void generateMap(){
 		width = 18;
 		height = 7;
@@ -60,6 +105,9 @@ public class Map {
 		}
 	}
 
+	/**
+	 * Gera um mapa de teste
+	 */
 	public void generateTeste(){
 
 		width = 18;
@@ -80,7 +128,10 @@ public class Map {
 			map[width - 1][i] = new Box("rock", null);
 		}
 	}
-
+	
+	/**
+	 * Gera o segundo nível do jogo
+	 */
 	public void generateLevel2(){
 
 		width = 20;
@@ -114,6 +165,9 @@ public class Map {
 		}
 	}
 	
+	/**
+	 * Gera o terceiro nível do jogo
+	 */
 	public void generateLevel3(){
 
 		width = 20;
@@ -167,6 +221,9 @@ public class Map {
 		}
 	}
 	
+	/**
+	 * Gera o quarto nível do jogo
+	 */
 	public void generateLevel4(){
 
 		width = 20;
@@ -244,7 +301,9 @@ public class Map {
 		}
 	}
 	
-	
+	/**
+	 * Gera o quinto nível do jogo
+	 */
 	public void generateLevel5(){
 
 		width = 24;
@@ -298,6 +357,9 @@ public class Map {
 		}
 	}
 
+	/**
+	 * Gera o tutorial do jogo
+	 */
 	public void generateTutorial(){
 		width = 18;
 		height = 7;
@@ -315,14 +377,28 @@ public class Map {
 		}
 	}
 
-
+	/**
+	 * Retorna a coordenada X da saída
+	 * @return exit_x
+	 */
 	public int getExitX(){
 		return exit_x;
 	}
 
+	/**
+	 * Retorna a coordenada Y da saída
+	 * @return exit_y
+	 */
 	public int getExitY(){
 		return exit_y;
 	}
+	
+	/**
+	 * Retorna a coordenada Y de algo abaixo de x e y, como uma caixa ou parede
+	 * @param x
+	 * @param y
+	 * @return a coordenada, ou 0 se não existir nada
+	 */
 	public int getLowerY(int x, int y) {
 		for(int i = y ; i >= 0; i-- ){
 			if(map[x][i].getKind() == "rock" || map[x][i].getKind() == "box"){
@@ -331,7 +407,12 @@ public class Map {
 		}
 		return 0;
 	}
-	
+	/**
+	 * Verifica se existe algo em cima
+	 * @param x
+	 * @param y
+	 * @return false se não existir, true se existir 
+	 */
 	public boolean isSomethingUp(int x, int y) {
 		if(map[x][y+1].getKind() == "blank") return false;
 		return true;

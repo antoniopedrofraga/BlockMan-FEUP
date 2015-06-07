@@ -18,21 +18,60 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.blockman.data.Map;
 
+/**
+ * Classe Logic que está encarregue da lógica de todo o jogo, exceto a física
+ * @author Miguel
+ *
+ */
 public class Logic {
+	
+	/**
+	 * Mapa do jogo
+	 */
 	private Map map;
+	
+	/**
+	 * Física do jogo
+	 */
 	private PhysicsWorld physicsWorld;
 	
+	/**
+	 * Boolean que verifica se o jogador está a carregar uma caixa
+	 */
 	private boolean carringBox = false;
+	
+	/**
+	 * Boolean que verifica se o jogador passou o nível
+	 */
 	private boolean win = false;
 	
+	/**
+	 * O construtor da lógica de jogo
+	 * 
+	 * @param map mapa de jogo
+	 * @param physicsWorld motor das físicas do jogo
+	 */
 	public Logic(Map map,PhysicsWorld physicsWorld){
 		this.map = map;
 		this.physicsWorld = physicsWorld;
 	}
 	
+	/**
+	 * Construtor vazio da lógica
+	 */
 	public Logic() {
 	}
-
+	
+	/**
+	 * Função que remove a caixa da esquerda, tendo em conta a posição do jogador, as coordenadas do mapa e o seu espacamento
+	 * @param player_pos_x Coordenada X do Jogador
+	 * @param player_pos_y Coordenada Y do Jogador
+	 * @param mapStartX Coordenada X do início do mapa
+	 * @param mapStartY Coordenada Y do início do mapa
+	 * @param spacing Espacamento pretendido
+	 * @param scene A cena onde se altera os desenhos
+	 * @return verdadeiro se foi possível remover a caixa, falso se não
+	 */
 	public boolean remove_box_left(float player_pos_x, float player_pos_y, int mapStartX, int mapStartY, int spacing, Scene scene) {
 		for(int i = 0; i < map.getHeight(); i++)
 			for(int a = 0; a < map.getWidth(); a++){
@@ -60,6 +99,16 @@ public class Logic {
 		return false;
 	}
 
+	/**
+	 * Função que remove a caixa da direita, tendo em conta a posição do jogador, as coordenadas do mapa e o seu espacamento
+	 * @param player_pos_x Coordenada X do Jogador
+	 * @param player_pos_y Coordenada Y do Jogador
+	 * @param mapStartX Coordenada X do início do mapa
+	 * @param mapStartY Coordenada Y do início do mapa
+	 * @param spacing Espacamento pretendido
+	 * @param scene A cena onde se altera os desenhos
+	 * @return verdadeiro se foi possível remover a caixa, falso se não
+	 */
 	public boolean remove_box_right(float player_pos_x, float player_pos_y, int mapStartX, int mapStartY, int spacing, Scene scene) {
 		for(int i = 0; i < map.getHeight(); i++)
 			for(int a = 0; a < map.getWidth(); a++){
@@ -85,6 +134,19 @@ public class Logic {
 		return false;
 	}
 	
+	/**
+	 * Função que "atira" a caixa para o lado esquerdo, pousando-a assim no chão
+	 * @param player_pos_x Coordenada X do Jogador
+	 * @param player_pos_y Coordenada Y do Jogador
+	 * @param mapStartX Coordenada X do início do mapa
+	 * @param mapStartY Coordenada Y do início do mapa
+	 * @param spacing Espacamento pretendido entre os objetos
+	 * @param scene Cena que é alterada
+	 * @param box_layer Textura da caixa
+	 * @param vertexBufferObjectManager necessário para criar sprites
+	 * @param vis visibilidade do objeto
+	 * @return verdadeiro se for possível "atirar a caixa", falso se não
+	 */
 	public boolean leave_box_left(float player_pos_x, float player_pos_y, int mapStartX,
 			int mapStartY, int spacing, Scene scene, ITextureRegion box_layer, VertexBufferObjectManager vertexBufferObjectManager, boolean vis) {
 		for(int i = 0; i < map.getHeight(); i++)
@@ -124,7 +186,19 @@ public class Logic {
 			}
 		return false;
 	}
-
+	/**
+	 * Função que "atira" a caixa para o lado direito, pousando-a assim no chão
+	 * @param player_pos_x Coordenada X do Jogador
+	 * @param player_pos_y Coordenada Y do Jogador
+	 * @param mapStartX Coordenada X do início do mapa
+	 * @param mapStartY Coordenada Y do início do mapa
+	 * @param spacing Espacamento pretendido entre os objetos
+	 * @param scene Cena que é alterada
+	 * @param box_layer Textura da caixa
+	 * @param vertexBufferObjectManager necessário para criar sprites
+	 * @param vis visibilidade do objeto
+	 * @return verdadeiro se for possível "atirar a caixa", falso se não
+	 */
 	public boolean leave_box_right(float player_pos_x, float player_pos_y, int mapStartX,
 			int mapStartY, int spacing, Scene scene, ITextureRegion box_layer, VertexBufferObjectManager vertexBufferObjectManager, boolean vis) {
 		for(int i = 0; i < map.getHeight(); i++)
@@ -159,26 +233,50 @@ public class Logic {
 		return false;
 	}
 	
+	/**
+	 * Retorna se o jogo está ganho ou não
+	 * @return win verdadeiro se for ganho, falso se não
+	 */
 	public boolean getWin(){
 		return win;
 	}
+	
+	/**
+	 * Altera a vitória do jogo
+	 * @param a (true ou false)
+	 */
 	public void setWin(boolean a){
 		win = a;
 	}
 	
+	/**
+	 * Retorna se o jogador está a carregar uma caixa, ou não
+	 * @return carringBox verdadeiro se estiver a carregar, falso se não
+	 */
 	public boolean getCarringBox(){
 		return carringBox;
 	}
 	
+	/**
+	 * Altera o carregamento da caixa
+	 * @param a (true ou false)
+	 */
 	public void setCarringBox(boolean a){
 		carringBox = a;
 	}
 
-
+	/**
+	 * Altera o mapa do jogo
+	 * @param map2
+	 */
 	public void setMap(Map map2) {
 		this.map = map2;
 	}
-
+	
+	/**
+	 * Altera a física do jogo
+	 * @param physicsWorld2
+	 */
 	public void setPhysics(PhysicsWorld physicsWorld2) {
 		this.physicsWorld = physicsWorld2;
 	}

@@ -61,110 +61,329 @@ import com.blockman.data.Map;
 
 
 @SuppressLint("RtlHardcoded")
+/**
+ * Classe Game que gere um jogo criado, seja qual for o nível
+ * @author Miguel
+ *
+ */
 public class Game extends SimpleBaseGameActivity {
 	//COSNTANTS-----------------
+	/**
+	 * Largura da Câmara
+	 */
 	private static final int CAMERA_WIDTH = 1270;
+	
+	/**
+	 * Altura da Câmara
+	 */
 	private static final int CAMERA_HEIGHT = 800;
 
+	/**
+	 * TAG usada em debugs
+	 */
 	private static final String TAG = "Block Man";
 
+	/**
+	 * Esquerda 
+	 */
 	private static final String LEFT = "left";
+	
+	/**
+	 * Direita
+	 */
 	private static final String RIGHT = "right";
+	
+	/**
+	 * Esquerda com colisão
+	 */
 	private static final String LEFT_W_COLLISION = "left collision";
+	
+	/**
+	 * Direita com colisão
+	 */
 	private static final String RIGHT_W_COLLISION = "right collision";
+	
+	/**
+	 * Parar virado para a direita
+	 */
 	private static final String STOP_RIGHT = "stop right";
+	
+	/**
+	 * Parar virado para a esquerda
+	 */
 	private static final String STOP_LEFT = "stop left";
+	
+	/**
+	 * Parar
+	 */
 	private static final String STOP = "STOP";
 
+	/**
+	 * Início do mapa na coordenada X
+	 */
 	private static final int MAP_START_X = 300;
+	
+	/**
+	 * Início do mapa na coordenada Y
+	 */
 	private static final int MAP_START_Y = 7 * CAMERA_HEIGHT / 12 - 100;
+	
+	/**
+	 * Espaçamento
+	 */
 	private static final int SPACING = 100;
 
+	/**
+	 * Início do jogador na coordenada X
+	 */
 	final float PLAYER_START_X = 300 + 100 * 16;
+	
+	/**
+	 * Início do jogador na coordenada Y
+	 */
 	final float PLAYER_START_Y = 7 * CAMERA_HEIGHT / 12 - 60;
 
+	/**
+	 * Visibilidade da física de debug
+	 */
 	final boolean PHYSICS_VISIBILITY = false;
 
+	/**
+	 * Necessário à criação de sprites
+	 */
 	private VertexBufferObjectManager vertexBufferObjectManager;
+	
+	/**
+	 * Sprite de retorno
+	 */
 	private Sprite back;
 	//--------------------------
 	//Camera--------------------
+	/**
+	 * Camara usada
+	 */
 	private BoundCamera myChaseCamera;
 	//--------------------------
 	//Physics-------------------
+	
+	/**
+	 * Física que gere o jogo
+	 */
 	private PhysicsWorld physicsWorld;
+	
+	/**
+	 * Corpo do jogador
+	 */
 	private Body player_body;
+	
+	/**
+	 * Contacto com o chão
+	 */
 	private int footContact = 0; //how many footcontact there is
 
 	//--------------------------
 	//Add Scene-----------------
+	/**
+	 * Cena onde são carregados todos os elementos pretendidos
+	 */
 	private Scene scene;
+	
+	/**
+	 * HUD
+	 */
 	private HUD hud;
 	//--------------------------
 	//Buttons-------------------
+	/**
+	 * Bitmap do botão de retorno
+	 */
 	private BitmapTextureAtlas go_back_bmp;
+	
+	/**
+	 * Textura do botão de retorno
+	 */
 	private ITextureRegion go_back_texture;
+	
+	/**
+	 * ButtonSprite do botão de retorno
+	 */
 	private ButtonSprite go_back;
 
+	/**
+	 * Bitmap do botão de caixa
+	 */
 	private BitmapTextureAtlas box_btn_bmp;
+	
+	/**
+	 * Textura do botão de caixa
+	 */
 	private ITextureRegion box_btn_texture;
+	
+	/**
+	 * ButtonSprite do botão de caixa
+	 */
 	private ButtonSprite box_btn;
 
+	/**
+	 * Bitmap do botão de salto
+	 */
 	private BitmapTextureAtlas jump_btn_bmp;
+	
+	/**
+	 * Textura do botão de salto
+	 */
 	private ITextureRegion jump_btn_texture;
+	
+	/**
+	 * ButtonSprite do botão de salto
+	 */
 	private ButtonSprite jump_btn;
 
+	/**
+	 * Bitmap do botão de refresh
+	 */
 	private BitmapTextureAtlas refresh_btn_bmp;
+	
+	/**
+	 * Textura do botão de refresh
+	 */
 	private ITextureRegion refresh_btn_texture;
+	
+	/**
+	 * ButtonSprite do botão de refresh
+	 */
 	private ButtonSprite refresh_btn;
 
+	/**
+	 * Bitmap do botão de play
+	 */
 	private BitmapTextureAtlas play_btn_bmp;
+	
+	/**
+	 * Textura do botão de play
+	 */
 	private ITextureRegion play_btn_texture;
 	//private BitmapTextureAtlas stop_btn_bmp;
 	//private ITextureRegion stop_btn_texture;
+	/**
+	 * ButtonSprite do botão de play
+	 */
 	private ButtonSprite play_btn;
 	//--------------------------
+	/**
+	 * Direção seguida pelo jogador
+	 */
 	String direction = "";
 	//--------------------------
 	//Sprites------------------
+	/**
+	 * Textura do layer frontal
+	 */
 	private ITextureRegion myLayerFront;
+	
+	/**
+	 * Textura do fundo
+	 */
 	private BitmapTextureAtlas myBackgroundTexture;
 
+	/**
+	 * Textura do atlas
+	 */
 	private BitmapTextureAtlas mBitmapTextureAtlas;
+	
+	/**
+	 * Região da textura do jogador
+	 */
 	private TiledTextureRegion mPlayerTextureRegion;
 
+	/**
+	 * Sprite animada do jogador
+	 */
 	private AnimatedSprite player;
 	//-----------------------------
 	//Map Sprites-----------------
+	/**
+	 * Mapa de jogo
+	 */
 	Map map;
+	
+	/**
+	 * Textura da pedra
+	 */
 	private ITextureRegion rock_layer;
+	
+	/**
+	 * Bitmap da pedras
+	 */
 	private BitmapTextureAtlas rock_bmp;
 
+	/**
+	 * Bitmap da caixa
+	 */
 	private BitmapTextureAtlas box_bmp;
+	
+	/**
+	 * Textura da caixa
+	 */
 	private ITextureRegion box_layer;
+	
+	/**
+	 * Bitmap da porta
+	 */
 	private BitmapTextureAtlas door_bmp;
+	
+	/**
+	 * Textura da porta
+	 */
 	private ITextureRegion door_layer;
 	//--------
 	//MUSIC
+	/**
+	 * Music Player que gere toda a música de jogo
+	 */
 	private Music musicPlayer;
 	//--------
 
 	//---------------------------
 	//Text------------------------
+	/**
+	 * Fonte usada no título
+	 */
 	private Font title_font;
+	
+	/**
+	 * Texto do título
+	 */
 	private Text title;
+	
+	/**
+	 * Texto da mensagem de vitória
+	 */
 	private Text winningMessage;
 	//--------------------------
 	//---------------------
+	/**
+	 * Lógica do jogo
+	 */
 	Logic gameLogic =  new Logic();
+	
+	/**
+	 * Nível onde o utilizador se encontra
+	 */
 	private int curr_level;
 	//--------------------------
 	
 	//Tests
+	/**
+	 * Jogo para efeito de testes
+	 */
 	private static Game game;
 	//
 
 	@Override
+	/**
+	 * Cria o Engine usado
+	 */
 	public EngineOptions onCreateEngineOptions() {
 		this.myChaseCamera = new BoundCamera(CAMERA_WIDTH, CAMERA_HEIGHT , CAMERA_WIDTH ,CAMERA_HEIGHT);
 		//myChaseCamera.setCenter(CAMERA_WIDTH/3, 7 * CAMERA_HEIGHT / 9);
@@ -180,6 +399,9 @@ public class Game extends SimpleBaseGameActivity {
 	}
 
 	@Override
+	/**
+	 * Cria e carrega todos os recursos como imagens, música e fontes
+	 */
 	protected void onCreateResources() {
 
 		try {
@@ -254,6 +476,9 @@ public class Game extends SimpleBaseGameActivity {
 	}
 
 	@Override
+	/**
+	 * Cria uma nova cena e adiciona-lhe todos os elementos necessários ao funcionamento do jogo
+	 */
 	protected Scene onCreateScene() {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
@@ -360,6 +585,9 @@ public class Game extends SimpleBaseGameActivity {
 		hud = new HUD();
 		go_back =  new ButtonSprite(25, 25 , go_back_texture,  vertexBufferObjectManager){
 			@Override
+			/**
+			 * Verifica a área tocada pelo utilizador
+			 */
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 					float pTouchAreaLocalX, float pTouchAreaLocalY) {
 				if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
@@ -374,6 +602,9 @@ public class Game extends SimpleBaseGameActivity {
 
 			refresh_btn =  new ButtonSprite(150, 25 , refresh_btn_texture,  vertexBufferObjectManager){
 				@Override
+				/**
+				 * Verifica a área tocada pelo utilizador
+				 */
 				public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 						float pTouchAreaLocalX, float pTouchAreaLocalY) {
 					if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
@@ -388,6 +619,9 @@ public class Game extends SimpleBaseGameActivity {
 
 				play_btn = new ButtonSprite(1050, 50, play_btn_texture, vertexBufferObjectManager){
 					@Override
+					/**
+					 * Verifica a área tocada pelo utilizador
+					 */
 					public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 							float pTouchAreaLocalX, float pTouchAreaLocalY) {
 						if(gameLogic.getWin() == false)
@@ -427,6 +661,9 @@ public class Game extends SimpleBaseGameActivity {
 
 					jump_btn = new ButtonSprite(1050, 600, jump_btn_texture, vertexBufferObjectManager){
 						@Override
+						/**
+						 * Verifica a área tocada pelo utilizador
+						 */
 						public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 								float pTouchAreaLocalX, float pTouchAreaLocalY) {
 							if(footContact > 0 && gameLogic.getWin() == false)
@@ -444,6 +681,9 @@ public class Game extends SimpleBaseGameActivity {
 
 						box_btn =  new ButtonSprite(850, 600 , box_btn_texture,  vertexBufferObjectManager){
 							@Override
+							/**
+							 * Verifica a área tocada pelo utilizador
+							 */
 							public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 									float pTouchAreaLocalX, float pTouchAreaLocalY) {
 								if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
@@ -524,6 +764,9 @@ public class Game extends SimpleBaseGameActivity {
 	}
 
 
+	/**
+	 * Gera o mapa de jogo de acordo com o nível atual
+	 */
 	private void generateMap() {
 		map = new Map();
 
@@ -591,10 +834,16 @@ public class Game extends SimpleBaseGameActivity {
 	}
 
 
+	/**
+	 * Jogador para
+	 */
 	private void player_stop() {
 		player_stop_left();
 	}
 
+	/**
+	 * Animação do jogador a parar virado para a esquerda
+	 */
 	private void player_stop_left() {
 		player.animate(new long[]{50, 50, 50, 50, 50,
 				50, 50, 50, 50, 50,
@@ -606,6 +855,9 @@ public class Game extends SimpleBaseGameActivity {
 		//player.animate(new long[]{100, 100}, 12, 13, true);
 	}
 
+	/**
+	 * Animação do jogador a parar virado para a direita
+	 */
 	private void player_walk_left() {
 		//Animate
 		long duration = 40;
@@ -625,6 +877,9 @@ public class Game extends SimpleBaseGameActivity {
 		direction = LEFT;
 	}
 
+	/**
+	 * Animação do jogador a andar para a direita
+	 */
 	private void player_walk_right() {
 		//Animate
 		long duration = 40;
@@ -641,6 +896,9 @@ public class Game extends SimpleBaseGameActivity {
 		direction = RIGHT;
 	}
 
+	/**
+	 * Animação do jogador a parar virado para a direita
+	 */
 	private void player_stop_right() {
 		player.animate(new long[]{50, 50, 50, 50, 50,
 				50, 50, 50, 50, 50,
@@ -649,6 +907,9 @@ public class Game extends SimpleBaseGameActivity {
 	}
 
 
+	/**
+	 * Inicia a física do jogo
+	 */
 	private void initPhysics()
 	{
 		physicsWorld = new PhysicsWorld(new Vector2(0, 90f), false);
@@ -689,11 +950,18 @@ public class Game extends SimpleBaseGameActivity {
 
 	}
 
+	/**
+	 * Função que verifica o contacto entre o jogador e os objetos através de sensores
+	 * @return contactListener
+	 */
 	private ContactListener createContactListener()
 	{
 		ContactListener contactListener = new ContactListener()
 		{
 			@Override
+			/**
+			 * Início do contacto entre o jogador e elementos
+			 */
 			public void beginContact(Contact contact)
 			{
 				Log.d(TAG, "Contact A: " + contact.getFixtureA().getUserData() + ", Contact B: " + contact.getFixtureB().getUserData());
@@ -745,6 +1013,9 @@ public class Game extends SimpleBaseGameActivity {
 			}
 
 			@Override
+			/**
+			 * Fim do contacto entre o jogador e os elementos do jogo
+			 */
 			public void endContact(Contact contact)
 			{
 				if(contact.getFixtureB().getUserData() == "feet" || contact.getFixtureA().getUserData() == "feet"){
@@ -786,6 +1057,9 @@ public class Game extends SimpleBaseGameActivity {
 		}
 
 		@Override
+		/**
+		 * Cria um novo intent e sai do nível
+		 */
 		protected void onModifierFinished(IEntity pItem)
 		{		
 			super.onModifierFinished(pItem);
@@ -817,12 +1091,22 @@ public class Game extends SimpleBaseGameActivity {
 		}
 	});
 
+	/**
+	 * Classe CarringBox que dá detach ou attach da caixa à cena
+	 * @author Miguel
+	 *
+	 */
 	class CarringBox extends Thread {
 		public CarringBox() {
 		}
+		/**
+		 * Função usada para adicionar ou remover objetos à cena de forma segura
+		 */
 		public void run() {
 			final Sprite box = new Sprite(player.getX() + 15, player.getY() - 75, box_layer, vertexBufferObjectManager);
-
+			/**
+			 * Função usada para adicionar ou remover objetos à cena de forma segura
+			 */
 			runOnUpdateThread(new Runnable() {
 				@Override
 				// to safely detach and re-attach the sprites
@@ -839,10 +1123,15 @@ public class Game extends SimpleBaseGameActivity {
 					e.printStackTrace();
 				}
 			}
-
+			/**
+			 * Função usada para adicionar ou remover objetos à cena de forma segura
+			 */
 			runOnUpdateThread(new Runnable() {
 				@Override
 				// to safely detach and re-attach the sprites
+				/**
+				 * Função usada para adicionar ou remover objetos à cena de forma segura
+				 */
 				public void run() {
 					scene.detachChild(box);
 					box.detachSelf();

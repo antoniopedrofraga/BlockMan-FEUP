@@ -38,71 +38,220 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.color.Color;
 
+/**
+ * Classe MainMenu que inicia o jogo e trata da interação entre o jogo e o menu
+ * @author Miguel
+ *
+ */
 public class MainMenu extends SimpleBaseGameActivity {
 
-
+	/**
+	 * Largura da câmara
+	 */
     private static final int CAMERA_WIDTH = 1270;
+    
+    /**
+     * Altura da câmara
+     */
     private static final int CAMERA_HEIGHT = 800;
 
+    /**
+     * Bitmap do atlas
+     */
     private BitmapTextureAtlas mBitmapTextureAtlas;
+    
+    /**
+     * Textura da região do jogador
+     */
     private TiledTextureRegion mPlayerTextureRegion;
 
+    /**
+     * Textura do fundo
+     */
     private BitmapTextureAtlas myBackgroundTexture;
 
+    /**
+     * Bitmap do nível 1
+     */
     private BitmapTextureAtlas level1;
+    
+    /**
+     * Textura do nível 1
+     */
     private ITextureRegion level1_texture;
     
+    /**
+     * Bitmap do nível 2
+     */
     private BitmapTextureAtlas level2;
+    
+    /**
+     * Textura do nível 2
+     */
     private ITextureRegion level2_texture;
     
+    /**
+     * Bitmap do nível 3
+     */
     private BitmapTextureAtlas level3;
+    
+    /**
+     * Textura do nível 3
+     */
     private ITextureRegion level3_texture;
     
+    /**
+     * Bitmap do nível 4
+     */
     private BitmapTextureAtlas level4;
+    
+    /**
+     * Textura do nível 4
+     */
     private ITextureRegion level4_texture;
     
+    /**
+     * Bitmap do nível 5
+     */
     private BitmapTextureAtlas level5;
+    
+    /**
+     * Textura do nível 5
+     */
     private ITextureRegion level5_texture;
     
+    /**
+     * Bitmap do nível 6
+     */
     private BitmapTextureAtlas level6;
+    
+    /**
+     * Textura do nível 6
+     */
     private ITextureRegion level6_texture;
     
+    /**
+     * Bitmap do botão de quit
+     */
     private BitmapTextureAtlas quit_bmp;
+    
+    /**
+     * Textura do botão de quit
+     */
     private ITextureRegion quit_texture;
 
+    /**
+     * Flag que verifica se o utilizador já carregou no ecrã
+     */
     private int tap = 0;
 
+    /**
+     * Textura da Layer intermédia
+     */
     private ITextureRegion myLayerMid;
+    
+    /**
+     * Textura da layer frontal
+     */
     private ITextureRegion myLayerFront;
     
+    /**
+     * Fonte myFont
+     */
     private Font myFont;
+    
+    /**
+     * Fonte usada no título
+     */
     private Font title_font;
+    
+    /**
+     * Fonte usada no nível
+     */
     private Font level_font;
     
+    /**
+     * Texto de ínicio
+     */
     private Text txt;
+    
+    /**
+     * Texto do título
+     */
     private Text title;
+    
+    /**
+     * Texto de escolher um nível
+     */
     private Text pick_level;
 
+    /**
+     * ButtonSprite do nível 1
+     */
     private ButtonSprite lv1;
+    
+    /**
+     * ButtonSprite do nível 2
+     */
     private ButtonSprite lv2;
+    
+    /**
+     * ButtonSprite do nível 3
+     */
     private ButtonSprite lv3;
+    
+    /**
+     * ButtonSprite do nível 4
+     */
     private ButtonSprite lv4;
+    
+    /**
+     * ButtonSprite do nível 5
+     */
     private ButtonSprite lv5;
+    
+    /**
+     * ButtonSprite do nível 6
+     */
     private ButtonSprite lv6;
     
+    /**
+     * ButtonSprite do botão de Quit
+     */
     private ButtonSprite quit;
     
     //--------
   	//MUSIC
+    /**
+     * Music Player que inicia as músicas
+     */
   	private Music musicPlayer;
+  	
+  	/**
+  	 * Bitmap do botão de play
+  	 */
   	private BitmapTextureAtlas play_btn_bmp;
+  	
+  	/**
+  	 * Textura do botão de play
+  	 */
 	private ITextureRegion play_btn_texture;
+	
+	/**
+	 * ButtonSprite do botão de play
+	 */
 	private ButtonSprite play_btn;
   	//--------
     
+	/**
+	 * Cena onde são carregados todos os elementos do jogo
+	 */
     private Scene scene;
 
     @Override
+    /**
+     * Cria o Engine de jogo
+     */
     public EngineOptions onCreateEngineOptions() {
         final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
         EngineOptions options = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new FillResolutionPolicy(), camera);
@@ -112,6 +261,9 @@ public class MainMenu extends SimpleBaseGameActivity {
     }
 
     @Override
+    /**
+     * Cria e carrega para a cena todos os elementos necessários
+     */
     public Scene onCreateScene() {
 
         this.mEngine.registerUpdateHandler(new FPSLogger());
@@ -182,6 +334,9 @@ public class MainMenu extends SimpleBaseGameActivity {
             }
 
             @Override
+            /**
+             * Trata de selecionar cada uma das opções disponíveis no menu
+             */
             protected void onModifierFinished(IEntity pItem)
             {
                 super.onModifierFinished(pItem);
@@ -242,6 +397,9 @@ public class MainMenu extends SimpleBaseGameActivity {
         lv1 =  new ButtonSprite(200, 300, level1_texture,  vertexBufferObjectManager)
         {
         	@Override
+        	/**
+        	 * Verifica a área tocada pelo utilizador
+        	 */
         	public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
         			float pTouchAreaLocalX, float pTouchAreaLocalY) {
         		if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
@@ -253,6 +411,9 @@ public class MainMenu extends SimpleBaseGameActivity {
         	lv2 =  new ButtonSprite(400, 300, level2_texture,  vertexBufferObjectManager)
         	{
         		@Override
+        		/**
+            	 * Verifica a área tocada pelo utilizador
+            	 */
         		public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
         				float pTouchAreaLocalX, float pTouchAreaLocalY) {
         			if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
@@ -264,6 +425,9 @@ public class MainMenu extends SimpleBaseGameActivity {
         		lv3 =  new ButtonSprite(600, 300, level3_texture,  vertexBufferObjectManager)
         		{
         			@Override
+        			/**
+                	 * Verifica a área tocada pelo utilizador
+                	 */
         			public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
         					float pTouchAreaLocalX, float pTouchAreaLocalY) {
         				if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
@@ -275,6 +439,9 @@ public class MainMenu extends SimpleBaseGameActivity {
         			lv4 =  new ButtonSprite(800, 300, level4_texture,  vertexBufferObjectManager)
         			{
         				@Override
+        				/**
+        	        	 * Verifica a área tocada pelo utilizador
+        	        	 */
         				public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
         						float pTouchAreaLocalX, float pTouchAreaLocalY) {
         					if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
@@ -286,6 +453,9 @@ public class MainMenu extends SimpleBaseGameActivity {
         				lv5 =  new ButtonSprite(1000, 300, level5_texture,  vertexBufferObjectManager)
         				{
         					@Override
+        					/**
+        		        	 * Verifica a área tocada pelo utilizador
+        		        	 */
         					public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
         							float pTouchAreaLocalX, float pTouchAreaLocalY) {
         						if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
@@ -297,6 +467,9 @@ public class MainMenu extends SimpleBaseGameActivity {
         					lv6 =  new ButtonSprite(400, 400, level6_texture,  vertexBufferObjectManager)
         					{
         						@Override
+        						/**
+        			        	 * Verifica a área tocada pelo utilizador
+        			        	 */
         						public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
         								float pTouchAreaLocalX, float pTouchAreaLocalY) {
         							if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
@@ -309,6 +482,9 @@ public class MainMenu extends SimpleBaseGameActivity {
         quit =  new ButtonSprite(CAMERA_WIDTH - 200, CAMERA_HEIGHT - 200 , quit_texture,  vertexBufferObjectManager)
              {
                 @Override
+                /**
+            	 * Verifica a área tocada pelo utilizador
+            	 */
                 public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
                 float pTouchAreaLocalX, float pTouchAreaLocalY) {
                 if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
@@ -320,6 +496,9 @@ public class MainMenu extends SimpleBaseGameActivity {
         quit.setScale((float)0.8);
          scene.setOnSceneTouchListener(new IOnSceneTouchListener() {
             @Override
+            /**
+        	 * Cria uma nova intent e fecha o menu
+        	 */
             public boolean onSceneTouchEvent(Scene pScene, final TouchEvent pSceneTouchEvent) {
                 if (pSceneTouchEvent.isActionDown()) {
                     if(tap == 0) {
@@ -368,6 +547,9 @@ public class MainMenu extends SimpleBaseGameActivity {
 
 
 	@Override
+	/**
+	 * Cria e carrega todos os recursos necessários como imagens, música e texto
+	 */
     public void onCreateResources() {
 
 		
@@ -456,6 +638,9 @@ public class MainMenu extends SimpleBaseGameActivity {
     }
 
 
+	/**
+	 * Adiciona à cena todos os níveis disponíveis
+	 */
 	void attach_levels(){
 		SharedPreferences settings = getSharedPreferences("data", 0);
         int level = settings.getInt("currLevel", -1);

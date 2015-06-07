@@ -55,105 +55,315 @@ import com.blockman.data.Map;
 
 
 @SuppressLint("RtlHardcoded")
+/**
+ * Classe Tutorial que cria o tutorial inicial do jogo
+ * @author Miguel
+ *
+ */
 public class Tutorial extends SimpleBaseGameActivity {
 	//COSNTANTS-----------------
+	/**
+	 * Largura da Câmara
+	 */
 	private static final int CAMERA_WIDTH = 1270;
+	
+	/**
+	 * Altura da Câmara
+	 */
 	private static final int CAMERA_HEIGHT = 800;
 
+	/**
+	 * TAG usada em debugs
+	 */
 	private static final String TAG = "Block Man";
 
+	/**
+	 * Esquerda
+	 */
 	private static final String LEFT = "left";
+	
+	/**
+	 * Direita
+	 */
 	private static final String RIGHT = "right";
+	
+	/**
+	 * Esquerda Com Colisão
+	 */
 	private static final String LEFT_W_COLLISION = "left collision";
+	
+	/**
+	 * Direita com Colisão
+	 */
 	private static final String RIGHT_W_COLLISION = "right collision";
+	
+	/**
+	 * Parar virado para a direita
+	 */
 	private static final String STOP_RIGHT = "stop right";
+	
+	/**
+	 * Parar virado para a esquerda
+	 */
 	private static final String STOP_LEFT = "stop left";
+	
+	/**
+	 * Parar
+	 */
 	private static final String STOP = "STOP";
 
+	/**
+	 * Início do mapa na coordenada X
+	 */
 	private static final int MAP_START_X = 300;
+	
+	/**
+	 * Início do mapa na coordenada Y
+	 */
 	private static final int MAP_START_Y = 7 * CAMERA_HEIGHT / 12 - 100;
+	
+	/**
+	 * Espaçamento
+	 */
 	private static final int SPACING = 100;
 
+	/**
+	 * Coordenada X onde o Jogador inicia
+	 */
 	final float PLAYER_START_X = 1150;
+	
+	/**
+	 * Coordenada Y onde o Jogador inicia
+	 */
 	final float PLAYER_START_Y = 7 * CAMERA_HEIGHT / 12 - 60;
 
+	/**
+	 * Visibilidade da física de debug
+	 */
 	final boolean PHYSICS_VISIBILITY = false;
 
+	/**
+	 * O quanto o jogador anda
+	 */
 	final float WALKING_VY = (float) 1.6424394E-8;
 	//----------------------------------
 	//Game Variables---------------------
+	/**
+	 * Variável que verifica se o jogador está a carregar uma caixa
+	 */
 	private boolean carringBox = false;
+	
+	/**
+	 * Variável que verifica se o jogador ganhou
+	 */
 	private boolean win = false;
 	//------------------------------
 	//---------------------------
+	/**
+	 * Necessário para desenhar Sprites
+	 */
 	private VertexBufferObjectManager vertexBufferObjectManager;
+	
+	/**
+	 * Sprite de retorno
+	 */
 	private Sprite back;
 	//--------------------------
 	//Camera--------------------
+	/**
+	 * Camara
+	 */
 	private BoundCamera myChaseCamera;
+	
+	/**
+	 * HUD
+	 */
 	private HUD hud;
 	//--------------------------
 	//Physics-------------------
+	/**
+	 * Física do jogo
+	 */
 	private PhysicsWorld physicsWorld;
 
+	/**
+	 * Corpo do jogador
+	 */
 	private Body player_body;
 
+	/**
+	 * Contacto com o chão
+	 */
 	private boolean footContact = false; //how many footcontact there is
 
 	//--------------------------
 	//Add Scene-----------------
+	/**
+	 * Cena que tem todos os elementos do jogo
+	 */
 	private Scene scene;
+	
+	/**
+	 * Listener de toque
+	 */
 	private IOnSceneTouchListener tListener;
 	//--------------------------
 	//Buttons-------------------
+	/**
+	 * Bitmap de retorno
+	 */
 	private BitmapTextureAtlas go_back_bmp;
+	
+	/**
+	 * Textura de retorno
+	 */
 	private ITextureRegion go_back_texture;
+	
+	/**
+	 * Sprite de botão de retorno
+	 */
 	private ButtonSprite go_back;
 
+	/**
+	 * Bitmap do botão de caixa
+	 */
 	private BitmapTextureAtlas box_btn_bmp;
+	
+	/**
+	 * Textura do botão de caixa
+	 */
 	private ITextureRegion box_btn_texture;
+	
+	/**
+	 * ButtonSprite do botão de caixa
+	 */
 	private ButtonSprite box_btn;
 
+	/**
+	 * Bitmap de botão de salto
+	 */
 	private BitmapTextureAtlas jump_btn_bmp;
+	
+	/**
+	 * Textura de botão de salto
+	 */
 	private ITextureRegion jump_btn_texture;
+	
+	/**
+	 * ButtonSprite do botão de salto
+	 */
 	private ButtonSprite jump_btn;
 	//--------------------------
+	/**
+	 * Direção que o jogador irá seguir
+	 */
 	String direction = "";
 	//--------------------------
 	//Sprites-------------------
+	/**
+	 * Textura da layer intermédia
+	 */
 	private ITextureRegion myLayerMid;
+	
+	/**
+	 * Textura da layer frontal
+	 */
 	private ITextureRegion myLayerFront;
+	
+	/**
+	 * Bitmap do fundo
+	 */
 	private BitmapTextureAtlas myBackgroundTexture;
 
+	/**
+	 * Bitmap da textura
+	 */
 	private BitmapTextureAtlas mBitmapTextureAtlas;
+	
+	/**
+	 * Região da textura do jogador
+	 */
 	private TiledTextureRegion mPlayerTextureRegion;
 
+	/**
+	 * Sprite animada do jogador
+	 */
 	private AnimatedSprite player;
 	//-----------------------------
 	//Map Sprites-----------------
+	/**
+	 * Mapa do jogo
+	 */
 	Map map;
+	
+	/**
+	 * Textura da pedra
+	 */
 	private ITextureRegion rock_layer;
+	
+	/**
+	 * Bitmap da pedra
+	 */
 	private BitmapTextureAtlas rock_bmp;
-
+	
+	/**
+	 * Bitmap da caixa
+	 */
 	private BitmapTextureAtlas box_bmp;
+	
+	/**
+	 * Textura da caixa
+	 */
 	private ITextureRegion box_layer;
+	
+	/**
+	 * Bitmap da porta
+	 */
 	private BitmapTextureAtlas door_bmp;
+	
+	/**
+	 * Textura da porta
+	 */
 	private ITextureRegion door_layer;
 	//---------------------------
 	//Text------------------------
+	/**
+	 * Fonte usada no título
+	 */
 	private Font title_font;
+	
+	/**
+	 * Texto do Título
+	 */
 	private Text title;
+	
+	/**
+	 * Fonte usada no texto de info
+	 */
 	private Font info_font;
+	
+	/**
+	 * Texto do info
+	 */
 	private Text info;
 	//--------------------------
 	//Logic---------------------
+	/**
+	 * Lógica da jogo
+	 */
 	Logic gameLogic;
 	//--------------------------
 	//Tutorial scene-----------
+	/**
+	 * Estado do tutorial
+	 */
 	private int state = 0;
 	//-------------------------
 
 	@Override
+	/**
+	 * Cria as opções do Engine usado
+	 */
 	public EngineOptions onCreateEngineOptions() {
 		this.myChaseCamera = new BoundCamera(CAMERA_WIDTH, CAMERA_HEIGHT , CAMERA_WIDTH ,CAMERA_HEIGHT);
 		//myChaseCamera.setCenter(CAMERA_WIDTH/3, 7 * CAMERA_HEIGHT / 9);
@@ -163,6 +373,9 @@ public class Tutorial extends SimpleBaseGameActivity {
 	}
 
 	@Override
+	/**
+	 * Cria e carrega todos os recursos usados, como imagens, música e textos
+	 */
 	protected void onCreateResources() {
 		this.myBackgroundTexture = new BitmapTextureAtlas(this.getTextureManager(), 3000, 1708);
 		this.myLayerFront = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.myBackgroundTexture, this, "ingame_back.jpg", 0, 0);
@@ -220,6 +433,9 @@ public class Tutorial extends SimpleBaseGameActivity {
 	}
 
 	@Override
+	/**
+	 * Gera a cena de jogo
+	 */
 	protected Scene onCreateScene() {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
@@ -349,6 +565,9 @@ public class Tutorial extends SimpleBaseGameActivity {
 		hud = new HUD();
 		go_back =  new ButtonSprite(25, 25 , go_back_texture,  vertexBufferObjectManager){
 			@Override
+			/**
+			 * Verifica a área onde o jogador tocou
+			 */
 			public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 					float pTouchAreaLocalX, float pTouchAreaLocalY) {
 				if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
@@ -373,6 +592,9 @@ public class Tutorial extends SimpleBaseGameActivity {
 			
 			jump_btn = new ButtonSprite(1050, 600, jump_btn_texture, vertexBufferObjectManager){
 				@Override
+				/**
+				 * Verifica a área onde o jogador tocou
+				 */
 				public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 						float pTouchAreaLocalX, float pTouchAreaLocalY) {
 					if(footContact == true)
@@ -399,6 +621,9 @@ public class Tutorial extends SimpleBaseGameActivity {
 
 				box_btn =  new ButtonSprite(850, 600 , box_btn_texture,  vertexBufferObjectManager){
 					@Override
+					/**
+					 * Verifica a área onde o jogador tocou
+					 */
 					public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
 							float pTouchAreaLocalX, float pTouchAreaLocalY) {
 						if(pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
@@ -491,7 +716,9 @@ public class Tutorial extends SimpleBaseGameActivity {
 					return scene;
 	}
 
-
+	/**
+	 * Cria o mapa de jogo (com gráficos) e insere-o na scene
+	 */
 	private void generateMap() {
 		map = new Map();
 		map.generateTutorial();
@@ -539,10 +766,16 @@ public class Tutorial extends SimpleBaseGameActivity {
 	}
 
 
+	/**
+	 * Jogador para
+	 */
 	private void player_stop() {
 		player_stop_left();
 	}
-
+	
+	/**
+	 * Animação do jogador a parar virado para a esquerda
+	 */
 	private void player_stop_left() {
 		player.animate(new long[]{50, 50, 50, 50, 50,
 				50, 50, 50, 50, 50,
@@ -554,6 +787,9 @@ public class Tutorial extends SimpleBaseGameActivity {
 		//player.animate(new long[]{100, 100}, 12, 13, true);
 	}
 
+	/**
+	 * Animação do jogador a andar para a esquerda
+	 */
 	private void player_walk_left() {
 		long duration = 40;
 		if(carringBox) duration = 50;
@@ -567,6 +803,9 @@ public class Tutorial extends SimpleBaseGameActivity {
 		//player.animate(new long[]{200, 200, 200, 200}, 14, 17, true);
 	}
 
+	/**
+	 * Animação do jogador a andar para a direita
+	 */
 	private void player_walk_right() {
 		long duration = 40;
 		if(carringBox) duration = 50;
@@ -576,6 +815,9 @@ public class Tutorial extends SimpleBaseGameActivity {
 				duration}, /*1*/32, /*16*/47, true);
 	}
 
+	/**
+	 * Animação do jogador a parar virado para a direita
+	 */
 	private void player_stop_right() {
 		player.animate(new long[]{50, 50, 50, 50, 50,
 				50, 50, 50, 50, 50,
@@ -584,7 +826,9 @@ public class Tutorial extends SimpleBaseGameActivity {
 	}
 
 
-
+	/**
+	 * Inicia a física de jogo
+	 */
 	private void initPhysics()
 	{
 		physicsWorld = new PhysicsWorld(new Vector2(0, 90f), false);
@@ -624,6 +868,10 @@ public class Tutorial extends SimpleBaseGameActivity {
 
 	}
 
+	/**
+	 * Listener que verifica onde o jogador se encontra através de sensores à volta dos objetos
+	 * @return contactListener
+	 */
 	private ContactListener createContactListener()
 	{
 		ContactListener contactListener = new ContactListener()
@@ -665,6 +913,9 @@ public class Tutorial extends SimpleBaseGameActivity {
 			}
 
 			@Override
+			/**
+			 * Fim do contacto entre os objetos
+			 */
 			public void endContact(Contact contact)
 			{
 				if(contact.getFixtureB().getUserData() == "feet" || contact.getFixtureA().getUserData() == "feet"){
@@ -696,9 +947,12 @@ public class Tutorial extends SimpleBaseGameActivity {
 		return contactListener;
 	}
 
-
+	
 	final SequenceEntityModifier click = new SequenceEntityModifier(new FadeOutModifier(0.10f), new FadeInModifier(0.10f){
 		@Override
+		/**
+		 * A ação executada
+		 */
 		protected void onModifierStarted(IEntity pItem)
 		{
 			super.onModifierStarted(pItem);
@@ -706,6 +960,9 @@ public class Tutorial extends SimpleBaseGameActivity {
 		}
 
 		@Override
+		/**
+		 * Cria um novo intent e termina o tutorial
+		 */
 		protected void onModifierFinished(IEntity pItem)
 		{
 				super.onModifierFinished(pItem);
@@ -720,12 +977,22 @@ public class Tutorial extends SimpleBaseGameActivity {
 	});
 
 
+	/**
+	 * Classe CarringBox que dá detach ou attach da caixa à cena
+	 * @author Miguel
+	 *
+	 */
 	class CarringBox extends Thread {
 		public CarringBox() {
 		}
+		/**
+		 * Função usada para adicionar ou remover objetos à cena de forma segura
+		 */
 		public void run() {
 			final Sprite box = new Sprite(player.getX() + 15, player.getY() - 75, box_layer, vertexBufferObjectManager);
-
+			/**
+			 * Função usada para adicionar ou remover objetos à cena de forma segura
+			 */
 			runOnUpdateThread(new Runnable() {
 				@Override
 				// to safely detach and re-attach the sprites
@@ -743,9 +1010,15 @@ public class Tutorial extends SimpleBaseGameActivity {
 				}
 			}
 
+			/**
+			 * Função usada para adicionar ou remover objetos à cena de forma segura
+			 */
 			runOnUpdateThread(new Runnable() {
 				@Override
 				// to safely detach and re-attach the sprites
+				/**
+				 * Função usada para adicionar ou remover objetos à cena de forma segura
+				 */
 				public void run() {
 					scene.detachChild(box);
 					box.detachSelf();
@@ -755,10 +1028,20 @@ public class Tutorial extends SimpleBaseGameActivity {
 		}
 	}
 	
-	
+	/**
+	 * Classe Tut que funciona como uma state machine para o Tutorial
+	 * @author Miguel
+	 *
+	 */
 	class Tut extends Thread {
+		/**
+		 * Construtor vazio de Tut
+		 */
 		public Tut() {
 		}
+		/**
+		 * Corre o tutorial e espera que o utilizador execute os passos pedidos
+		 */
 		public void run() {
 			if(state == 0){
 				try {

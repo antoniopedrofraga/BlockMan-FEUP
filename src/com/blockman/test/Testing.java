@@ -11,19 +11,43 @@ import blockman.logic.Logic;
 
 import com.blockman.data.Map;
 import com.blockman.game.Game;
-
+/**
+ * Classe de testes do jogo
+ * @author Miguel
+ *
+ */
 public class Testing {
 	
 	//Constants used by game scene
+	/**
+	 * Início do Mapa da coordenada X
+	 */
 	private static final int MAP_START_X = 300;
+	
+	/**
+	 * Início do Mapa da coordenada Y
+	 */
 	private static final int MAP_START_Y = 7 * 800 / 12 - 100;
 	
+	/**
+	 * Coordenada X de onde o jogador começa
+	 */
 	final float PLAYER_START_X = 300 + 245;
+	
+	/**
+	 * Coordenada Y de onde o jogador começa
+	 */
 	final float PLAYER_START_Y = 7 * 800 / 12 - 60;
 	
+	/**
+	 * Sprite do jogador
+	 */
 	private Sprite player;
 	//--------------------------------------------------------
-	
+	/**
+	 * Gera o ambiente de testes (o mapa)
+	 * @return map mapa gerado
+	 */
 	public Map generateTestEnvironement(){
 		Map map = new Map();
 		map.generateTeste();
@@ -31,7 +55,9 @@ public class Testing {
 	}
 	
 	@Test
-	//Teste de gerar mapa de testes
+	/**
+	 * Testa se o mapa é bem gerado
+	 */
 	public void testGenerateMap() {
 		Map test_map = generateTestEnvironement();
 		Logic gameLogic = new Logic(null, null);
@@ -42,7 +68,9 @@ public class Testing {
 	}
 	
 	@Test
-	//Teste de largar caixa à esquerda
+	/**
+	 * Testa se o jogador consegue largar caixas à esquerda
+	 */
 	public void testLeaveBoxLeft() {
 		Map test_map = generateTestEnvironement();
 		Logic gameLogic = new Logic();
@@ -53,7 +81,9 @@ public class Testing {
 	}
 	
 	@Test
-	//Teste de largar caixa à direita
+	/**
+	 * Testa se o jogador consegue largar caixas à direita
+	 */
 	public void testLeaveBoxRight() {
 		Map test_map = generateTestEnvironement();
 		Logic gameLogic = new Logic();
@@ -64,7 +94,9 @@ public class Testing {
 	}
 	
 	@Test
-	//Teste de apanhar caixa à esquerda
+	/**
+	 * Testa se o jogador consegue apanhar caixas à esquerda
+	 */
 	public void removeBoxLeft() {
 		Map test_map = generateTestEnvironement();
 		Logic gameLogic = new Logic();
@@ -76,7 +108,9 @@ public class Testing {
 	}
 	
 	@Test
-	//Teste de apanhar caixa à direita
+	/**
+	 * Testa se o jogador consegue apanhar caixas à direita
+	 */
 	public void removeBoxRight() {
 		Map test_map = generateTestEnvironement();
 		Logic gameLogic = new Logic();
@@ -88,7 +122,9 @@ public class Testing {
 	}
 	
 	@Test
-	//Teste da flag winning 
+	/**
+	 * Testa se o jogador consegue chegar ao final e se altera o boolean win da classe Logic
+	 */
 	public void	winningFlag() {
 		Logic gameLogic = new Logic();
 		assertFalse(gameLogic.getWin());
@@ -97,7 +133,9 @@ public class Testing {
 	}
 	
 	@Test
-	//Teste da flag carringBox
+	/**
+	 * Testa se, quando o jogador apanha a caixa, o boolean carringBox é alterado na classe Logic
+	 */
 	public void	carringBoxFlag() {
 		Logic gameLogic = new Logic();
 		assertFalse(gameLogic.getCarringBox());
