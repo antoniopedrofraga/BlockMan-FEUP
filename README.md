@@ -23,13 +23,9 @@ The main goal of this subject was to develop [Object Oriented Programming](https
 
 ### Screenshots
 
-![initial state](https://raw.githubusercontent.com/pedrofraga05/BlockMan-FEUP/master/readme/menu_inicial.png)
+![initial state](https://raw.githubusercontent.com/pedrofraga/BlockMan-FEUP/master/readme/menu_inicial.gif)
 
+![tutorial](https://github.com/pedrofraga/BlockMan-FEUP/blob/master/readme/tutorial.gif)
 
-![levels](https://raw.githubusercontent.com/pedrofraga05/BlockMan-FEUP/master/readme/niveis.png)
+![inGame state](https://github.com/pedrofraga/BlockMan-FEUP/blob/master/readme/jogo.gif)
 
-
-![inGame state](https://raw.githubusercontent.com/pedrofraga05/BlockMan-FEUP/master/readme/Jogo.png)
-
-
-![level completed](https://raw.githubusercontent.com/pedrofraga05/BlockMan-FEUP/master/readme/nivel_completo.png)
