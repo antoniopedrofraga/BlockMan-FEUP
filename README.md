@@ -2,9 +2,9 @@
 
 ## Index
 
-1. [Description] (#description)
-2. [Developers] (#developers)
-3. [Screenshots] (#screenshots)
+1. [Description](#description)
+2. [Developers](#developers)
+3. [Screenshots](#screenshots)
 
 
 ***
@@ -17,8 +17,8 @@ The main goal of this subject was to develop [Object Oriented Programming](https
 
 ### Developers
 
-* [Miguel Botelho] (https://github.com/tomislaaaav)
-* [Pedro Fraga] (https://github.com/pedrofraga) 
+* [Miguel Botelho](https://github.com/tomislaaaav)
+* [Pedro Fraga](https://github.com/pedrofraga) 
 
 
 ### Screenshots
